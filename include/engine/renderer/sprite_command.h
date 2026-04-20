@@ -6,6 +6,7 @@
 struct SpriteCommand
 {
     float x, y, w, h;
+    float u0, v0, u1, v1;
     TextureHandle texture;
     uint32_t color;
     int32_t layer;

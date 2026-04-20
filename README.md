@@ -9,15 +9,11 @@ This project is created as a learning exercise to explore the fundamentals of bu
 - Game loop architecture
 - Basic engine structure
 
----
-
 ## 🛠️ Tech Stack
 
 - Language: **C++**
 - Build System: **CMake**
 - Version Control: **Git (with submodules)**
-
----
 
 ## 📦 Getting Started
 
@@ -30,9 +26,6 @@ git clone --recurse-submodules https://github.com/ophoomo/thailand-summer-jam-20
 ```
 ```bash
 cd thailand-summer-jam-2026
-```
-```bash
-git submodule update --init --recursive
 ```
 
 ### 2. Build the Project

@@ -32,6 +32,9 @@ class OxRenderer
                       int32_t layer = 0);
     void oxDrawSprite(float x, float y, float w, float h, const std::string texture_name,
                       Color tint, int32_t layer = 0);
+    void oxDrawSpriteSheet(float x, float y, float w, float h, const std::string &texture_name,
+                           float u0, float v0, float u1, float v1,
+                           Color tint = Color::White(), int32_t layer = 0);
     void oxDrawText(float x, float y, const char *text, float size, Color color,
                     TextEffect effect = TextEffect::None(), int32_t layer = 0);
 

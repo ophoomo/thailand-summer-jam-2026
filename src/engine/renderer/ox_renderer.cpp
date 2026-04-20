@@ -135,11 +135,18 @@ void OxRenderer::oxDrawText(float x, float y, const char *text, float size, Colo
 void OxRenderer::oxDrawSprite(float x, float y, float w, float h, const std::string texture_name,
                               Color tint, int32_t layer)
 {
-    auto handle = this->m_texture_cached[texture_name];
+    oxDrawSpriteSheet(x, y, w, h, texture_name, 0.f, 0.f, 1.f, 1.f, tint, layer);
+}
+
+void OxRenderer::oxDrawSpriteSheet(float x, float y, float w, float h,
+                                   const std::string &texture_name, float u0, float v0, float u1,
+                                   float v1, Color tint, int32_t layer)
+{
+    auto handle = m_texture_cached[texture_name];
     if (handle == INVALID_TEXTURE)
         return;
     const uint32_t idx = static_cast<uint32_t>(m_spriteCommands.size());
-    this->m_spriteCommands.push_back({x, y, w, h, handle, tint.Pack(), layer});
+    m_spriteCommands.push_back({x, y, w, h, u0, v0, u1, v1, handle, tint.Pack(), layer});
     // Key layout: layer(8) | type=1(8) | texture_id(16) | 0(32)  — groups same-texture sprites
     const uint64_t key = (static_cast<uint64_t>(std::clamp(layer, 0, 255)) << 56) | (1ULL << 48) |
                          (static_cast<uint64_t>(handle & 0xFFFF) << 32);
@@ -361,10 +368,10 @@ void OxRenderer::flushAll()
             curTex = cmd.texture;
             const float r = cmd.x + cmd.w;
             const float b = cmd.y + cmd.h;
-            this->m_spriteVertices.push_back({cmd.x, cmd.y, 0.f, 0.f, cmd.color, 0.f});
-            this->m_spriteVertices.push_back({r, cmd.y, 1.f, 0.f, cmd.color, 0.f});
-            this->m_spriteVertices.push_back({r, b, 1.f, 1.f, cmd.color, 0.f});
-            this->m_spriteVertices.push_back({cmd.x, b, 0.f, 1.f, cmd.color, 0.f});
+            this->m_spriteVertices.push_back({cmd.x, cmd.y, cmd.u0, cmd.v0, cmd.color, 0.f});
+            this->m_spriteVertices.push_back({r, cmd.y, cmd.u1, cmd.v0, cmd.color, 0.f});
+            this->m_spriteVertices.push_back({r, b, cmd.u1, cmd.v1, cmd.color, 0.f});
+            this->m_spriteVertices.push_back({cmd.x, b, cmd.u0, cmd.v1, cmd.color, 0.f});
 
         } else if (entry.type == 3) { // circle
             if (curType != 3) {
