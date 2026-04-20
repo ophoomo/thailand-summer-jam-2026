@@ -53,7 +53,8 @@ void Application::init()
 #ifndef NDEBUG
     this->m_assets = std::make_shared<RawAssets>();
 #else
-    this->m_assets = std::make_shared<OxenAssests>();
+    this->m_assets = std::make_shared<RawAssets>();
+    //this->m_assets = std::make_shared<OxenAssests>();
 #endif
     this->m_dispatcher = std::make_shared<entt::dispatcher>();
     this->m_window = std::make_shared<Window>(this->m_width, this->m_height, this->m_windowTitle,
