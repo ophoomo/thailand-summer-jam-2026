@@ -9,6 +9,15 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # ---------------------------------------------------------------------------
+# OpenAL-soft → force static build
+# ---------------------------------------------------------------------------
+set(LIBTYPE "STATIC" CACHE STRING "" FORCE)
+set(ALSOFT_UTILS      OFF CACHE BOOL "" FORCE)
+set(ALSOFT_EXAMPLES   OFF CACHE BOOL "" FORCE)
+set(ALSOFT_TESTS      OFF CACHE BOOL "" FORCE)
+set(ALSOFT_INSTALL    OFF CACHE BOOL "" FORCE)
+
+# ---------------------------------------------------------------------------
 # Find libraries
 # ---------------------------------------------------------------------------
 find_package(Vulkan REQUIRED)
@@ -32,10 +41,18 @@ add_subdirectory(external/stb)
 # ---------------------------------------------------------------------------
 # Debug Mode
 # ---------------------------------------------------------------------------
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-message(STATUS "Adding shaders and scripts for Debug build")
-add_subdirectory(shaders)
-add_subdirectory(assets)
+get_property(IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+
+if(IS_MULTI_CONFIG)
+    message(STATUS "Multi-config generator detected — assets/shaders added for all configs")
+    add_subdirectory(shaders)
+    add_subdirectory(assets)
+else()
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        message(STATUS "Debug build — adding shaders and assets")
+        add_subdirectory(shaders)
+        add_subdirectory(assets)
+    endif()
 endif()
 
 # ---------------------------------------------------------------------------
