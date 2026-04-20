@@ -1,6 +1,7 @@
 #ifndef C6EAAA2B_1E69_412C_8F65_85FD8D68C2FC
 #define C6EAAA2B_1E69_412C_8F65_85FD8D68C2FC
 
+#include <algorithm>
 #include "al.h"
 #include "alc.h"
 #include "audio/audio_interface.h"
