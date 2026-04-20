@@ -1,4 +1,4 @@
-
+#include <stdexcept>
 #include "renderer/ox_renderer.h"
 #include "renderer/camera.h"
 #include "renderer/msdf_font.h"

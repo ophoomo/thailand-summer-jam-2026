@@ -1,4 +1,5 @@
 
+#include <stdexcept>
 #include "core/scene_manager.h"
 #include "core/scene.h"
 #include "entt/entt.hpp"
