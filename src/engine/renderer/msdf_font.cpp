@@ -1,5 +1,5 @@
 #include "renderer/msdf_font.h"
-#include "stb/stb_image.h"
+#include "stb_image.h"
 #include "utils/logger.h"
 #include <nlohmann/json.hpp>
 
