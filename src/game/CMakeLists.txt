@@ -15,6 +15,15 @@ file(GLOB_RECURSE GAME_SOURCES
 add_executable(${PROJECT_NAME} ${GAME_SOURCES})
 
 # ---------------------------------------------------------------------------
+# Hide terminal window in Release build (Windows only)
+# ---------------------------------------------------------------------------
+if(WIN32)
+    target_link_options(${PROJECT_NAME} PRIVATE
+        $<$<CONFIG:Release,RelWithDebInfo>:/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup>
+    )
+endif()
+
+# ---------------------------------------------------------------------------
 # Configure include directories
 # ---------------------------------------------------------------------------
 target_include_directories(${PROJECT_NAME} PRIVATE
