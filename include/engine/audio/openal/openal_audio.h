@@ -1,10 +1,10 @@
 #ifndef C6EAAA2B_1E69_412C_8F65_85FD8D68C2FC
 #define C6EAAA2B_1E69_412C_8F65_85FD8D68C2FC
 
-#include <algorithm>
 #include "al.h"
 #include "alc.h"
 #include "audio/audio_interface.h"
+#include <algorithm>
 #include <unordered_map>
 
 class OpenALAudio : public AudioInterface
@@ -15,6 +15,7 @@ class OpenALAudio : public AudioInterface
 
     bool load(const std::string &name, int channels, int samples, int sample_rate,
               short *data) override;
+    void unload(const std::string &name) override;
 
     void play_sfx(const std::string &name, float volume = 1.f) override;
     void stop_all_sfx() override;

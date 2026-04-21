@@ -14,6 +14,8 @@ struct TextCommand
     uint32_t color;
     int32_t layer;
     TextEffect effect;
+    float rotation;  // radians CCW
+    float pivotX, pivotY;  // absolute world pivot point
 };
 
 #endif /* FD62981E_31F0_4A25_815D_DA639B0941B2 */

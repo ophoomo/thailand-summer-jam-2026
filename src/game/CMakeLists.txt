@@ -7,6 +7,10 @@ file(GLOB_RECURSE GAME_SOURCES
     ecs/**/*.cpp
     scenes/*.cpp
     config/*.cpp
+    battle/*.cpp
+    cards/*.cpp
+    characters/*.cpp
+    gui/*.cpp
 )
 
 # ---------------------------------------------------------------------------

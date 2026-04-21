@@ -6,6 +6,7 @@
 #include "renderer/text_effect.h"
 #include "renderer/vulkan/vulkan_renderer.h"
 #include "utils/logger.h"
+#include <cmath>
 #include <glm/glm.hpp>
 #include <memory>
 
@@ -68,7 +69,7 @@ void OxRenderer::oxEnd()
 }
 
 void OxRenderer::oxDrawRectangle(float x, float y, float width, float height, Color color,
-                                 int32_t layer)
+                                 int32_t layer, float rotation, float originX, float originY)
 {
     if (m_cmdBuf.count >= MAX_COMMANDS) [[unlikely]] {
         LOG_CORE_WARN("[OxRenderer]: command buffer full — draw call dropped");
@@ -78,8 +79,8 @@ void OxRenderer::oxDrawRectangle(float x, float y, float width, float height, Co
 
     m_cmdBuf.positions[i] = {x, y};
     m_cmdBuf.sizes[i] = {width, height};
-    m_cmdBuf.origins[i] = {0.f, 0.f};
-    m_cmdBuf.rotations[i] = 0.f;
+    m_cmdBuf.origins[i] = {originX * width, originY * height};
+    m_cmdBuf.rotations[i] = rotation;
     m_cmdBuf.colors[i] = color.Pack();
     m_cmdBuf.texIndices[i] = 0;
     m_cmdBuf.uvMins[i] = {0.f, 0.f};
@@ -121,32 +122,41 @@ void OxRenderer::oxDrawCircle(float cx, float cy, float radius, Color color, int
 }
 
 void OxRenderer::oxDrawText(float x, float y, const char *text, float size, Color color,
-                            TextEffect effect, int32_t layer)
+                            TextEffect effect, int32_t layer, float rotation, float originX,
+                            float originY)
 {
     if (!text || *text == '\0')
         return;
     const uint32_t idx = static_cast<uint32_t>(m_textCommands.size());
-    this->m_textCommands.push_back({text, x, y, size, color.Pack(), layer, effect});
+    const float textW = this->measureText(text, size);
+    const float textH = size;
+    const float pivotX = x + originX * textW;
+    const float pivotY = y + originY * textH;
+    this->m_textCommands.push_back({text, x, y, size, color.Pack(), layer, effect, rotation, pivotX, pivotY});
     // Key layout: layer(8) | type=2(8) | 0(48)
     const uint64_t key = (static_cast<uint64_t>(std::clamp(layer, 0, 255)) << 56) | (2ULL << 48);
     m_drawList.push_back({key, 2, idx});
 }
 
 void OxRenderer::oxDrawSprite(float x, float y, float w, float h, const std::string texture_name,
-                              Color tint, int32_t layer)
+                              Color tint, int32_t layer, float rotation, float originX,
+                              float originY)
 {
-    oxDrawSpriteSheet(x, y, w, h, texture_name, 0.f, 0.f, 1.f, 1.f, tint, layer);
+    oxDrawSpriteSheet(x, y, w, h, texture_name, 0.f, 0.f, 1.f, 1.f, tint, layer, rotation,
+                      originX, originY);
 }
 
 void OxRenderer::oxDrawSpriteSheet(float x, float y, float w, float h,
                                    const std::string &texture_name, float u0, float v0, float u1,
-                                   float v1, Color tint, int32_t layer)
+                                   float v1, Color tint, int32_t layer, float rotation,
+                                   float originX, float originY)
 {
     auto handle = m_texture_cached[texture_name];
     if (handle == INVALID_TEXTURE)
         return;
     const uint32_t idx = static_cast<uint32_t>(m_spriteCommands.size());
-    m_spriteCommands.push_back({x, y, w, h, u0, v0, u1, v1, handle, tint.Pack(), layer});
+    m_spriteCommands.push_back(
+        {x, y, w, h, u0, v0, u1, v1, handle, tint.Pack(), layer, rotation, originX * w, originY * h});
     // Key layout: layer(8) | type=1(8) | texture_id(16) | 0(32)  — groups same-texture sprites
     const uint64_t key = (static_cast<uint64_t>(std::clamp(layer, 0, 255)) << 56) | (1ULL << 48) |
                          (static_cast<uint64_t>(handle & 0xFFFF) << 32);
@@ -235,21 +245,39 @@ void OxRenderer::waitIdle()
 
 void OxRenderer::writeQuadVertices(uint32_t i, Vertex2D *out) const
 {
-    // Generate the four corners of the quad in world space.
-    // No rotation applied here — add a 2D rotation matrix if oxDrawSprite
-    // exposes a rotation parameter in the future.
     const glm::vec2 pos = m_cmdBuf.positions[i];
     const glm::vec2 sz = m_cmdBuf.sizes[i];
+    const glm::vec2 localOrigin = m_cmdBuf.origins[i]; // pivot offset from pos
+    const float rot = m_cmdBuf.rotations[i];
     const uint32_t col = m_cmdBuf.colors[i];
     const float slot = static_cast<float>(m_cmdBuf.texIndices[i]);
     const glm::vec2 uvMin = m_cmdBuf.uvMins[i];
     const glm::vec2 uvMax = m_cmdBuf.uvMaxs[i];
 
     // Winding order: TL → TR → BR → BL  (matches index buffer 0,1,2, 0,2,3)
-    out[0] = {pos.x, pos.y, uvMin.x, uvMin.y, col, slot};               // TL
-    out[1] = {pos.x + sz.x, pos.y, uvMax.x, uvMin.y, col, slot};        // TR
-    out[2] = {pos.x + sz.x, pos.y + sz.y, uvMax.x, uvMax.y, col, slot}; // BR
-    out[3] = {pos.x, pos.y + sz.y, uvMin.x, uvMax.y, col, slot};        // BL
+    const glm::vec2 corners[4] = {
+        {0.f,  0.f },
+        {sz.x, 0.f },
+        {sz.x, sz.y},
+        {0.f,  sz.y},
+    };
+    const glm::vec2 uvs[4] = {
+        {uvMin.x, uvMin.y},
+        {uvMax.x, uvMin.y},
+        {uvMax.x, uvMax.y},
+        {uvMin.x, uvMax.y},
+    };
+
+    const float ca = std::cos(rot);
+    const float sa = std::sin(rot);
+    const glm::vec2 pivot = pos + localOrigin;
+
+    for (int j = 0; j < 4; ++j) {
+        const glm::vec2 local = pos + corners[j] - pivot;
+        const glm::vec2 rotated = {local.x * ca - local.y * sa, local.x * sa + local.y * ca};
+        const glm::vec2 world = pivot + rotated;
+        out[j] = {world.x, world.y, uvs[j].x, uvs[j].y, col, slot};
+    }
 }
 
 void OxRenderer::flushSingleTextCommand(const TextCommand &cmd)
@@ -296,6 +324,16 @@ void OxRenderer::flushSingleTextCommand(const TextCommand &cmd)
     }
 
     if (!this->m_textVertices.empty()) {
+        if (cmd.rotation != 0.f) {
+            const float ca = std::cos(cmd.rotation);
+            const float sa = std::sin(cmd.rotation);
+            for (auto &v : this->m_textVertices) {
+                const float lx = v.x - cmd.pivotX;
+                const float ly = v.y - cmd.pivotY;
+                v.x = cmd.pivotX + lx * ca - ly * sa;
+                v.y = cmd.pivotY + lx * sa + ly * ca;
+            }
+        }
         this->m_renderer->SubmitTextVertices(this->m_textVertices.data(),
                                              static_cast<uint32_t>(this->m_textVertices.size()) / 4,
                                              this->m_fontTex, toGPU(cmd.effect));
@@ -366,12 +404,28 @@ void OxRenderer::flushAll()
             if (cmd.texture != curTex && curTex != INVALID_TEXTURE)
                 flushSprites();
             curTex = cmd.texture;
-            const float r = cmd.x + cmd.w;
-            const float b = cmd.y + cmd.h;
-            this->m_spriteVertices.push_back({cmd.x, cmd.y, cmd.u0, cmd.v0, cmd.color, 0.f});
-            this->m_spriteVertices.push_back({r, cmd.y, cmd.u1, cmd.v0, cmd.color, 0.f});
-            this->m_spriteVertices.push_back({r, b, cmd.u1, cmd.v1, cmd.color, 0.f});
-            this->m_spriteVertices.push_back({cmd.x, b, cmd.u0, cmd.v1, cmd.color, 0.f});
+
+            const glm::vec2 corners[4] = {
+                {cmd.x,         cmd.y        },
+                {cmd.x + cmd.w, cmd.y        },
+                {cmd.x + cmd.w, cmd.y + cmd.h},
+                {cmd.x,         cmd.y + cmd.h},
+            };
+            const float uvs[4][2] = {
+                {cmd.u0, cmd.v0},
+                {cmd.u1, cmd.v0},
+                {cmd.u1, cmd.v1},
+                {cmd.u0, cmd.v1},
+            };
+            const float ca = std::cos(cmd.rotation);
+            const float sa = std::sin(cmd.rotation);
+            const glm::vec2 pivot = {cmd.x + cmd.originX, cmd.y + cmd.originY};
+            for (int j = 0; j < 4; ++j) {
+                const glm::vec2 local = corners[j] - pivot;
+                const glm::vec2 r = {local.x * ca - local.y * sa, local.x * sa + local.y * ca};
+                const glm::vec2 w = pivot + r;
+                this->m_spriteVertices.push_back({w.x, w.y, uvs[j][0], uvs[j][1], cmd.color, 0.f});
+            }
 
         } else if (entry.type == 3) { // circle
             if (curType != 3) {
