@@ -1,7 +1,6 @@
 
 #include "core/application.h"
 #include "assets/raw/raw_assets.h"
-#include "audio/audio_interface.h"
 #include "audio/openal/openal_audio.h"
 #include "core/localization.h"
 #include "core/scene_manager.h"
@@ -54,7 +53,7 @@ void Application::init()
     this->m_assets = std::make_shared<RawAssets>();
 #else
     this->m_assets = std::make_shared<RawAssets>();
-    //this->m_assets = std::make_shared<OxenAssests>();
+    // this->m_assets = std::make_shared<OxenAssests>();
 #endif
     this->m_dispatcher = std::make_shared<entt::dispatcher>();
     this->m_window = std::make_shared<Window>(this->m_width, this->m_height, this->m_windowTitle,
@@ -129,7 +128,8 @@ void Application::loadAudio()
 {
     int channels, sample_rate;
     short *data;
-    int sample = this->m_assets->loadAudio("assets/audio/click.ogg", channels, sample_rate, data);
+    int sample =
+        this->m_assets->loadAudio("assets/audio/click_sfx.ogg", channels, sample_rate, data);
     this->m_audio->load("click", channels, sample, sample_rate, data);
 }
 

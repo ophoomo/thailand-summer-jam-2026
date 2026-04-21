@@ -1,0 +1,45 @@
+{
+  "menu": {
+    "start": "Start Game",
+    "continue": "Continue",
+    "settings": "Settings",
+    "credits": "Credits",
+    "quit": "Quit"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "lang_en": "English",
+    "lang_th": "Thai",
+    "volume": "Volume",
+    "fullscreen": "Fullscreen",
+    "back": "Back"
+  },
+  "game": {
+    "score": "Score: {}",
+    "level": "Level {}",
+    "lives": "Lives: {}",
+    "paused": "Paused",
+    "resume": "Resume",
+    "restart": "Restart",
+    "game_over": "Game Over",
+    "you_win": "You Win!"
+  },
+  "credits": {
+    "title": "Credits",
+    "developer": "Developer",
+    "music": "Music",
+    "art": "Art",
+    "back": "Back"
+  },
+  "splash": {
+    "loading": "Loading..."
+  },
+  "common": {
+    "yes": "Yes",
+    "no": "No",
+    "ok": "OK",
+    "cancel": "Cancel",
+    "close": "Close"
+  }
+}

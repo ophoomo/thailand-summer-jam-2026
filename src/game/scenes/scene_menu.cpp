@@ -35,7 +35,7 @@ void SceneMenu::onEnter()
     int channels, sample_rate;
     short *data;
     int sample =
-        this->m_assets->loadAudio("assets/audio/menu_audio.ogg", channels, sample_rate, data);
+        this->m_assets->loadAudio("assets/audio/menu_bgm.ogg", channels, sample_rate, data);
     this->m_audio->load("menu", channels, sample, sample_rate, data);
 
     this->m_audio->set_bgm_fade_gain(0);
@@ -45,8 +45,7 @@ void SceneMenu::onEnter()
     int w, h, c;
     auto pixel = this->m_assets->loadImage("assets/images/menu_bg.png", w, h, c);
     this->m_renderer->createTexture("menu_bg", pixel, w, h);
-
-    pixel = this->m_assets->loadImage("assets/images/studio1.png", w, h, c);
+    this->m_assets->unLoadImage(pixel);
 
     this->m_lua->CallVoid("on_enter");
 }
@@ -78,6 +77,7 @@ void SceneMenu::onExit()
     this->m_lua.reset();
     this->m_audio->stop_bgm();
     this->m_renderer->freeTexture("menu_bg");
+    this->m_audio->unload("menu_bg");
 }
 
 // ============================================================

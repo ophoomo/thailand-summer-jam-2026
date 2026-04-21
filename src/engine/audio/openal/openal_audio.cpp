@@ -2,7 +2,6 @@
 #include "audio/openal/openal_audio.h"
 #include "al.h"
 #include "utils/logger.h"
-#include <cmath>
 
 // ============================================================
 // Construction / destruction
@@ -109,6 +108,16 @@ bool OpenALAudio::load(const std::string &name, int channels, int samples, int s
     LOG_CORE_INFO("[OpenALAudio] Loaded '{}' ({}ch, {}Hz, {} samples)", name, channels, sample_rate,
                   samples);
     return true;
+}
+
+void OpenALAudio::unload(const std::string &name)
+{
+    auto it = this->m_buffers.find(name);
+    if (it == this->m_buffers.end())
+        return;
+
+    alDeleteBuffers(1, &it->second);
+    this->m_buffers.erase(it);
 }
 
 void OpenALAudio::play_sfx(const std::string &name, float volume)
@@ -438,7 +447,14 @@ void OpenALAudio::update(float dt)
             m_bgm_fade.active = false;
         }
 
-        float v = m_bgm_fade.start + (m_bgm_fade.target - m_bgm_fade.start) * t;
+        // float v = m_bgm_fade.start + (m_bgm_fade.target - m_bgm_fade.start) * t;
+
+        // float epsilon = 0.0001f;
+        // float start = std::max(m_bgm_fade.start, epsilon);
+        // float v = start * pow(m_bgm_fade.target / start, t);
+
+        float t2 = t * t * (3.0f - 2.0f * t);
+        float v = m_bgm_fade.start + (m_bgm_fade.target - m_bgm_fade.start) * t2;
 
         m_bgm_fade_gain = v;
         apply_bgm_volume();

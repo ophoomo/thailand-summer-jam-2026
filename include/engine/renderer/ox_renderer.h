@@ -27,16 +27,20 @@ class OxRenderer
     void oxEnd();
 
     void oxDrawRectangle(float x, float y, float width, float height, Color color = Color::White(),
-                         int32_t layer = 0);
+                         int32_t layer = 0, float rotation = 0.f, float originX = 0.5f,
+                         float originY = 0.5f);
     void oxDrawCircle(float cx, float cy, float radius, Color color = Color::White(),
                       int32_t layer = 0);
     void oxDrawSprite(float x, float y, float w, float h, const std::string texture_name,
-                      Color tint, int32_t layer = 0);
+                      Color tint, int32_t layer = 0, float rotation = 0.f, float originX = 0.5f,
+                      float originY = 0.5f);
     void oxDrawSpriteSheet(float x, float y, float w, float h, const std::string &texture_name,
-                           float u0, float v0, float u1, float v1,
-                           Color tint = Color::White(), int32_t layer = 0);
+                           float u0, float v0, float u1, float v1, Color tint = Color::White(),
+                           int32_t layer = 0, float rotation = 0.f, float originX = 0.5f,
+                           float originY = 0.5f);
     void oxDrawText(float x, float y, const char *text, float size, Color color,
-                    TextEffect effect = TextEffect::None(), int32_t layer = 0);
+                    TextEffect effect = TextEffect::None(), int32_t layer = 0, float rotation = 0.f,
+                    float originX = 0.f, float originY = 0.f);
 
     TextureHandle createTexture(const std::string texture_name, const uint8_t *pixels, int width,
                                 int height);

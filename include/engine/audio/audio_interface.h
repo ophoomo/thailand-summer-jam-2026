@@ -12,6 +12,7 @@ class AudioInterface
 
     virtual bool load(const std::string &name, int channels, int samples, int sample_rate,
                       short *data) = 0;
+    virtual void unload(const std::string &name) = 0;
 
     // One-shot sound effect (up to SFX_POOL simultaneous sources).
     virtual void play_sfx(const std::string &name, float volume = 1.f) = 0;
