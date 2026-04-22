@@ -13,27 +13,30 @@ namespace battle {
 //  hot path never does string comparisons.
 // ─────────────────────────────────────────────────────────────────────────────
 
-struct AIPatternInfo {
+struct AIPatternInfo
+{
     IntentType action{IntentType::ATTACK};
-    int32_t    damage{0};
-    int32_t    block{0};
-    int32_t    times{1};
-    int8_t     apply_vulnerable{0};
-    int8_t     apply_weak{0};
+    int32_t damage{0};
+    int32_t block{0};
+    int32_t times{1};
+    int8_t apply_vulnerable{0};
+    int8_t apply_weak{0};
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  EnemyInfo — fully parsed, runtime-ready enemy definition
 // ─────────────────────────────────────────────────────────────────────────────
 
-struct EnemyInfo {
-    std::string                lua_id;
-    std::string                name;
-    EnemyType                  type{EnemyType::SKELETON};
-    int32_t                    base_hp{10};
-    int32_t                    hp_per_level{2};
-    int8_t                     passive_regen{0};  // HP healed at end of each turn
-    bool                       is_boss{false};
+struct EnemyInfo
+{
+    std::string lua_id;
+    std::string name;
+    EnemyType type{EnemyType::SKELETON};
+    int32_t base_hp{10};
+    int32_t hp_per_level{2};
+    int8_t passive_regen{0}; // HP healed at end of each turn
+    bool is_boss{false};
+    std::string sprite_id; // asset sprite identifier (e.g., "enemy1", "boss")
     std::vector<AIPatternInfo> patterns;
 };
 

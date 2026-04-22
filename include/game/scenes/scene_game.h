@@ -40,12 +40,12 @@ class SceneGame : public Scene
     bool overlayBtn(const char *text, float x, float y, float w, float h);
 
     // ── UI objects ────────────────────────────────────────────────────────────
-    TextureHandle m_gameplay_bg;
     std::unique_ptr<Player> m_player;
     std::unique_ptr<CardHand> m_card_hand;
     std::unique_ptr<TimerGUI> m_timer_gui;
     std::unique_ptr<LunarCycleGUI> m_lunar_cycle_gui;
     std::shared_ptr<battle::BattleSystem> m_battle;
+    std::unique_ptr<Animator> m_enemy_animator;
 
     // ── Enemy render cache (populated in drawEnemies each frame) ──────────────
     struct EnemyRenderSlot
@@ -72,6 +72,7 @@ class SceneGame : public Scene
     bool m_key_play = false;
     bool m_key_end_turn = false;
     bool m_key_escape = false;
+    bool m_button_hover_sound = false;
 
     battle::CombatPhase m_prev_phase{battle::CombatPhase::IDLE};
 

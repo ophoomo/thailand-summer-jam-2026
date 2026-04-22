@@ -74,10 +74,10 @@ void Player::onEnter()
 
     // Animation
     Animation idle("idle", true);
-    idle.buildFromSheet(4, 2, 0, 0, 4, 0.1f);
+    idle.buildFromSheet(6, 2, 0, 0, 4, 0.1f);
 
     Animation attak("attack", true);
-    attak.buildFromSheet(4, 2, 1, 0, 4, 0.1f);
+    attak.buildFromSheet(6, 2, 1, 0, 4, 0.1f);
 
     this->m_animator->addAnimation(std::move(idle));
     this->m_animator->addAnimation(std::move(attak));
@@ -96,8 +96,8 @@ void Player::onDraw()
     auto *hp = reg.try_get<battle::HealthComp>(player);
     uint8_t hp_opacity = hp->ratio() * 255;
     if (const AnimFrame *f = m_animator->currentFrame()) {
-        m_renderer->oxDrawSpriteSheet(this->x, this->y, 64, 64, "player", f->u0, f->v0, f->u1,
-                                      f->v1, {255, 255, 255, hp_opacity});
+        m_renderer->oxDrawSpriteSheet(this->x, this->y, WIDTH_PLAYER, HEIGHT_PLAYER, "player",
+                                      f->u0, f->v0, f->u1, f->v1, {255, 255, 255, hp_opacity});
     }
 }
 

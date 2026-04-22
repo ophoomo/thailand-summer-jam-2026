@@ -11,6 +11,7 @@
 --   hp_per_level  (int)     extra HP added per level above 1
 --   passive_regen (int)     HP healed at end of every turn (0 = none)
 --   is_boss       (bool)    true for level-10 bosses
+--   sprite_id     (string)  sprite identifier (e.g., "enemy1", "enemy2", "boss")
 --   patterns      (table)   action cycle, looped with modulo
 --
 -- Pattern fields:
@@ -29,12 +30,13 @@ return {
         id           = "skeleton",
         name         = "Skeleton",
         type         = "skeleton",
+        sprite_id    = "enemy1",
         base_hp      = 18,
         hp_per_level = 3,
         patterns     = {
             { action = "attack", damage = 6 },
             { action = "attack", damage = 6 },
-            { action = "defend", block  = 4 },
+            { action = "defend", block = 4 },
         },
     },
 
@@ -42,6 +44,7 @@ return {
         id           = "goblin",
         name         = "Goblin",
         type         = "goblin",
+        sprite_id    = "enemy2",
         base_hp      = 14,
         hp_per_level = 2,
         patterns     = {
@@ -58,13 +61,14 @@ return {
         id            = "troll",
         name          = "Troll",
         type          = "troll",
+        sprite_id     = "enemy1",
         base_hp       = 40,
         hp_per_level  = 5,
         passive_regen = 2,
         patterns      = {
-            { action = "attack", damage = 9  },
-            { action = "defend", block  = 8  },
-            { action = "buff"                },
+            { action = "attack", damage = 9 },
+            { action = "defend", block = 8 },
+            { action = "buff" },
             { action = "attack", damage = 12 },
         },
     },
@@ -73,13 +77,14 @@ return {
         id           = "archer",
         name         = "Archer",
         type         = "archer",
+        sprite_id    = "enemy2",
         base_hp      = 22,
         hp_per_level = 3,
         patterns     = {
-            { action = "attack",  damage = 7, apply_vulnerable = 1 },
-            { action = "attack",  damage = 7  },
-            { action = "debuff",  apply_vulnerable = 1 },
-            { action = "attack",  damage = 10 },
+            { action = "attack", damage = 7,          apply_vulnerable = 1 },
+            { action = "attack", damage = 7 },
+            { action = "debuff", apply_vulnerable = 1 },
+            { action = "attack", damage = 10 },
         },
     },
 
@@ -89,10 +94,11 @@ return {
         id           = "dark_knight",
         name         = "Dark Knight",
         type         = "dark_knight",
+        sprite_id    = "enemy2",
         base_hp      = 50,
         hp_per_level = 6,
         patterns     = {
-            { action = "defend", block  = 10 },
+            { action = "defend", block = 10 },
             { action = "attack", damage = 12 },
             { action = "attack", damage = 12 },
             { action = "attack", damage = 16 },
@@ -103,12 +109,13 @@ return {
         id           = "necromancer",
         name         = "Necromancer",
         type         = "necromancer",
+        sprite_id    = "enemy2",
         base_hp      = 35,
         hp_per_level = 4,
         patterns     = {
-            { action = "special"             },  -- summon skeleton
-            { action = "attack", damage = 8  },
-            { action = "defend", block  = 12 },
+            { action = "special" },             -- summon skeleton
+            { action = "attack", damage = 8 },
+            { action = "defend", block = 12 },
             { action = "attack", damage = 10 },
         },
     },
@@ -119,15 +126,16 @@ return {
         id           = "boss_dragon",
         name         = "Dragon",
         type         = "boss_dragon",
+        sprite_id    = "boss",
         base_hp      = 180,
         hp_per_level = 20,
         is_boss      = true,
         patterns     = {
-            { action = "special", damage = 16 },        -- fire breath
+            { action = "special", damage = 16 }, -- fire breath
             { action = "attack",  damage = 20 },
-            { action = "defend",  block  = 16 },
+            { action = "defend",  block = 16 },
             { action = "attack",  damage = 25 },
-            { action = "special", damage = 12, times = 2 },  -- double hit
+            { action = "special", damage = 12, times = 2 }, -- double hit
         },
     },
 
@@ -135,15 +143,16 @@ return {
         id           = "boss_lich",
         name         = "Lich",
         type         = "boss_lich",
+        sprite_id    = "boss",
         base_hp      = 160,
         hp_per_level = 18,
         is_boss      = true,
         patterns     = {
             { action = "debuff",  apply_vulnerable = 1, apply_weak = 1 },
             { action = "attack",  damage = 14 },
-            { action = "buff"                  },
+            { action = "buff" },
             { action = "attack",  damage = 18 },
-            { action = "special", damage = 20 },  -- life drain
+            { action = "special", damage = 20 }, -- life drain
         },
     },
 }

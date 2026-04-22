@@ -8,8 +8,8 @@
 #include "renderer/ox_renderer.h"
 #include <memory>
 
-static constexpr float WIDTH_PLAYER = 180.0f;
-static constexpr float HEIGHT_PLAYER = 260.0f;
+static constexpr float WIDTH_PLAYER = 104.54f;
+static constexpr float HEIGHT_PLAYER = 151.0f;
 
 class Player
 {
@@ -30,6 +30,14 @@ class Player
     {
         return this->y;
     }
+    float getWidth() const
+    {
+        return WIDTH_PLAYER;
+    }
+    float getHeight() const
+    {
+        return HEIGHT_PLAYER;
+    }
 
   private:
     void onAttack(int posIndex);
@@ -41,7 +49,7 @@ class Player
     std::unique_ptr<Animator> m_animator;
     std::shared_ptr<battle::BattleSystem> m_battle;
 
-    float x = 180, y = 360;
+    float x = 180, y = 300;
 
     float m_health = 10.0;
 };

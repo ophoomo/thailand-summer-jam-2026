@@ -10,20 +10,29 @@ namespace battle {
 //  spawn
 // ─────────────────────────────────────────────────────────────────────────────
 
-entt::entity EnemyAI::spawn(entt::registry& reg, const EnemyInfo& info,
-                             int32_t level, int32_t priority)
+entt::entity EnemyAI::spawn(entt::registry &reg, const EnemyInfo &info, int32_t level,
+                            int32_t priority)
 {
     int32_t hp = info.base_hp + info.hp_per_level * (level - 1);
 
     entt::entity e = reg.create();
     reg.emplace<EnemyTag>(e);
     reg.emplace<NameComp>(e, info.name);
-    reg.emplace<HealthComp>(e, HealthComp{ hp, hp });
+    reg.emplace<HealthComp>(e, HealthComp{hp, hp});
     reg.emplace<BlockComp>(e);
     reg.emplace<StrengthComp>(e);
     reg.emplace<StatusComp>(e);
-    reg.emplace<TurnOrderComp>(e, TurnOrderComp{ priority });
-    reg.emplace<EnemyTypeComp>(e, EnemyTypeComp{ info.type, level, 0 });
+    reg.emplace<TurnOrderComp>(e, TurnOrderComp{priority});
+    reg.emplace<EnemyTypeComp>(e, EnemyTypeComp{info.type, level, 0});
+
+    // Add sprite component with the sprite from Lua definition
+    reg.emplace<SpriteComp>(e, SpriteComp{
+                                   info.sprite_id, // texture_id
+                                   800.0f,         // x (right side of screen)
+                                   300.0f,         // y (center vertically)
+                                   104.54f,        // width (same as player)
+                                   151.0f          // height (same as player)
+                               });
 
     if (info.is_boss)
         reg.emplace<BossTag>(e);
@@ -42,33 +51,32 @@ entt::entity EnemyAI::spawn(entt::registry& reg, const EnemyInfo& info,
 //  resolveIntent — advance pattern index, write IntentComp from EnemyInfo data
 // ─────────────────────────────────────────────────────────────────────────────
 
-void EnemyAI::resolveIntent(entt::registry& reg, entt::entity enemy,
-                             const EnemyInfo& info)
+void EnemyAI::resolveIntent(entt::registry &reg, entt::entity enemy, const EnemyInfo &info)
 {
-    if (info.patterns.empty()) return;
+    if (info.patterns.empty())
+        return;
 
-    auto& et  = reg.get<EnemyTypeComp>(enemy);
+    auto &et = reg.get<EnemyTypeComp>(enemy);
     size_t idx = static_cast<size_t>(et.pattern_index) % info.patterns.size();
-    const AIPatternInfo& pat = info.patterns[idx];
+    const AIPatternInfo &pat = info.patterns[idx];
 
     // Scale damage +5% per level above 1
-    float   scale     = 1.0f + 0.05f * static_cast<float>(et.level - 1);
+    float scale = 1.0f + 0.05f * static_cast<float>(et.level - 1);
     int32_t scaled_dmg = static_cast<int32_t>(static_cast<float>(pat.damage) * scale);
 
-    reg.emplace_or_replace<IntentComp>(enemy, IntentComp{
-        pat.action, scaled_dmg, pat.block, pat.times
-    });
+    reg.emplace_or_replace<IntentComp>(enemy,
+                                       IntentComp{pat.action, scaled_dmg, pat.block, pat.times});
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  executeIntent
 // ─────────────────────────────────────────────────────────────────────────────
 
-int32_t EnemyAI::executeIntent(entt::registry& reg, entt::entity enemy,
-                                entt::entity player, const EnemyInfo& info)
+int32_t EnemyAI::executeIntent(entt::registry &reg, entt::entity enemy, entt::entity player,
+                               const EnemyInfo &info)
 {
-    auto& et     = reg.get<EnemyTypeComp>(enemy);
-    auto& intent = reg.get<IntentComp>(enemy);
+    auto &et = reg.get<EnemyTypeComp>(enemy);
+    auto &intent = reg.get<IntentComp>(enemy);
     int32_t raw_damage = 0;
 
     switch (intent.type) {
@@ -88,14 +96,14 @@ int32_t EnemyAI::executeIntent(entt::registry& reg, entt::entity enemy,
         break;
 
     case IntentType::DEBUFF: {
-        if (info.patterns.empty()) break;
+        if (info.patterns.empty())
+            break;
         size_t idx = static_cast<size_t>(et.pattern_index) % info.patterns.size();
-        const AIPatternInfo& pat = info.patterns[idx];
-        auto& st = reg.get<StatusComp>(player);
-        st.vulnerable = static_cast<int8_t>(
-            std::clamp<int32_t>(st.vulnerable + pat.apply_vulnerable, 0, 127));
-        st.weak = static_cast<int8_t>(
-            std::clamp<int32_t>(st.weak + pat.apply_weak, 0, 127));
+        const AIPatternInfo &pat = info.patterns[idx];
+        auto &st = reg.get<StatusComp>(player);
+        st.vulnerable =
+            static_cast<int8_t>(std::clamp<int32_t>(st.vulnerable + pat.apply_vulnerable, 0, 127));
+        st.weak = static_cast<int8_t>(std::clamp<int32_t>(st.weak + pat.apply_weak, 0, 127));
         break;
     }
     }

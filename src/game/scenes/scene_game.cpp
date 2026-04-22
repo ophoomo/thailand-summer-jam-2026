@@ -1,8 +1,10 @@
 
 #include "game/scenes/scene_game.h"
+#include "animation/animator.h"
 #include "core/scene_manager.h"
 #include "engine/utils/logger.h"
 #include "game/cards/hand.h"
+#include "game/characters/enemy.h"
 #include "renderer/color.h"
 #include "renderer/text_effect.h"
 #include <SDL3/SDL_scancode.h>
@@ -43,11 +45,39 @@ void SceneGame::onEnter()
     this->m_renderer->createTexture("button", pixel, w, h);
     this->m_assets->unLoadImage(pixel);
 
+    pixel = this->m_assets->loadImage("assets/images/enemy1.png", w, h, c);
+    this->m_renderer->createTexture("enemy1", pixel, w, h);
+    this->m_assets->unLoadImage(pixel);
+
+    pixel = this->m_assets->loadImage("assets/images/enemy2.png", w, h, c);
+    this->m_renderer->createTexture("enemy2", pixel, w, h);
+    this->m_assets->unLoadImage(pixel);
+
+    pixel = this->m_assets->loadImage("assets/images/ิboss.png", w, h, c);
+    this->m_renderer->createTexture("boss", pixel, w, h);
+    this->m_assets->unLoadImage(pixel);
+
+    this->m_enemy_animator = std::make_unique<Animator>();
+
+    Animation idle("idle", true);
+    idle.buildFromSheet(6, 2, 0, 0, 4, 0.1f);
+
+    Animation attak("attack", true);
+    attak.buildFromSheet(6, 2, 1, 0, 4, 0.1f);
+
+    this->m_enemy_animator->addAnimation(std::move(idle));
+    this->m_enemy_animator->addAnimation(std::move(attak));
+    this->m_enemy_animator->play("idle");
+
     int channels, sample_rate;
     short *data;
     int sim =
         this->m_assets->loadAudio("assets/audio/gameplay_bgm.ogg", channels, sample_rate, data);
     this->m_audio->load("gameplay", channels, sim, sample_rate, data);
+
+    sim = this->m_assets->loadAudio("assets/audio/click_sfx.ogg", channels, sample_rate, data);
+    this->m_audio->load("click", channels, sim, sample_rate, data);
+
     this->m_audio->set_bgm_fade_gain(0);
     this->m_audio->fade_bgm(1.0f, 5.0f);
     this->m_audio->play_bgm("gameplay", true, 0.1);
@@ -152,9 +182,16 @@ void SceneGame::onUpdate(double deltaTime)
     // ── Hover detection (enemy -or- player depending on card type) ────────────
     if (cur_sel >= 0 && this->m_battle) {
         if (this->m_self_targeting) {
-            // Player hit area (generous, around sprite at 180,280 size 64×64)
-            constexpr float PX1 = 148.0f, PX2 = 278.0f;
-            constexpr float PY1 = 258.0f, PY2 = 368.0f;
+            // Player hit area: use actual player dimensions
+            float px = this->m_player->getX();
+            float py = this->m_player->getY();
+            float pw = this->m_player->getWidth();
+            float ph = this->m_player->getHeight();
+            constexpr float PAD = 20.0f;
+            float PX1 = px - PAD;
+            float PX2 = px + pw + PAD;
+            float PY1 = py - PAD;
+            float PY2 = py + ph + PAD;
             this->m_hovered_self = (this->m_mouse_x >= PX1 && this->m_mouse_x <= PX2 &&
                                     this->m_mouse_y >= PY1 && this->m_mouse_y <= PY2);
         } else {
@@ -308,6 +345,11 @@ void SceneGame::onExit()
     this->m_renderer->freeTexture("botoom_bar");
     this->m_renderer->freeTexture("button");
     this->m_audio->unload("gameplay_bg");
+    this->m_audio->unload("click");
+
+    this->m_renderer->freeTexture("enemy1");
+    this->m_renderer->freeTexture("enemy2");
+    this->m_renderer->freeTexture("boss");
 
     if (this->m_battle) {
         this->m_battle->shutdown();
@@ -355,9 +397,6 @@ void SceneGame::drawEnemies()
     if (enemies.empty())
         return;
 
-    constexpr float BASE_Y = 220.0f;
-    constexpr float BASE_W = 80.0f;
-    constexpr float BASE_H = 80.0f;
     constexpr float SPACING = 170.0f;
 
     int n = static_cast<int>(enemies.size());
@@ -371,88 +410,104 @@ void SceneGame::drawEnemies()
     constexpr float V1 = 0.5f;
 
     for (int i = 0; i < n; ++i) {
+
         entt::entity e = enemies[i];
         bool is_boss = false;
         if (auto *et = reg.try_get<battle::EnemyTypeComp>(e))
             is_boss = (et->type == battle::EnemyType::BOSS_DRAGON ||
                        et->type == battle::EnemyType::BOSS_LICH);
 
-        float w = is_boss ? BASE_W * 1.5f : BASE_W;
-        float h = is_boss ? BASE_H * 1.5f : BASE_H;
-        float ex = sx + i * SPACING;
-        float ey = BASE_Y;
-
-        this->m_enemy_slots.push_back({e, ex, ey, w, h});
-
-        Color tint = Color::White();
-        if (auto *et = reg.try_get<battle::EnemyTypeComp>(e))
-            tint = enemyTint(et->type);
-
-        // ── Hover highlight (drawn BEFORE sprite so it appears behind) ────────
-        bool hovered = (e == this->m_hovered_enemy);
-        if (hovered) {
-            float pulse = 1.0f + 0.18f * std::sin(this->m_arrow_pulse * 6.0f);
-            float hw = w * 0.5f * pulse + 10.0f;
-            float hh = h * 0.5f * pulse + 10.0f;
-            uint8_t ha = static_cast<uint8_t>(80 + 60 * std::sin(this->m_arrow_pulse * 4.0f));
-            this->m_renderer->oxDrawRectangle(ex + w * 0.5f, ey + h * 0.5f, hw * 2.0f, hh * 2.0f,
-                                              {255, 60, 60, ha}, 0, 0.0f, 0.5f, 0.5f);
-        }
-
         // ── Enemy sprite ──────────────────────────────────────────────────────
-        this->m_renderer->oxDrawSpriteSheet(ex, ey, w, h, "player", u0_flip, V0, u1_flip, V1, tint,
-                                            1);
+        if (auto *sprite = reg.try_get<battle::SpriteComp>(e)) {
+            if (!sprite->texture_id.empty()) {
 
-        // ── Name ─────────────────────────────────────────────────────────────
-        if (auto *nm = reg.try_get<battle::NameComp>(e)) {
-            float tw = this->m_renderer->measureText(nm->data, 12);
-            this->m_renderer->oxDrawText(ex + w * 0.5f - tw * 0.5f, ey - 42.0f, nm->data, 12,
-                                         Color::White(), TextEffect::Outline(Color::Black()), 2);
-        }
+                float BASE_Y = sprite->y;
+                float BASE_W = sprite->width;
+                float BASE_H = sprite->height;
 
-        // ── Intent ────────────────────────────────────────────────────────────
-        if (auto *intent = reg.try_get<battle::IntentComp>(e)) {
-            std::string txt;
-            switch (intent->type) {
-            case battle::IntentType::ATTACK:
-                txt = std::format("ATK {}", intent->damage);
-                break;
-            case battle::IntentType::DEFEND:
-                txt = std::format("BLK {}", intent->block);
-                break;
-            case battle::IntentType::BUFF:
-                txt = "BUFF";
-                break;
-            case battle::IntentType::DEBUFF:
-                txt = "DEBUFF";
-                break;
-            case battle::IntentType::SPECIAL:
-                txt = "SPECIAL";
-                break;
+                float w = is_boss ? BASE_W * 1.5f : BASE_W;
+                float h = is_boss ? BASE_H * 1.5f : BASE_H;
+                float ex = sx + i * SPACING;
+                float ey = BASE_Y;
+
+                this->m_enemy_slots.push_back({e, ex, ey, w, h});
+
+                Color tint = Color::White();
+                if (auto *et = reg.try_get<battle::EnemyTypeComp>(e))
+                    tint = enemyTint(et->type);
+
+                // ── Hover highlight (drawn BEFORE sprite so it appears behind) ────────
+                bool hovered = (e == this->m_hovered_enemy);
+                if (hovered) {
+                    uint8_t ha =
+                        static_cast<uint8_t>(80 + 60 * std::sin(this->m_arrow_pulse * 4.0f));
+                    this->m_renderer->oxDrawRectangle(ex, ey, sprite->width, sprite->height,
+                                                      {255, 60, 60, ha}, 3, 0.0f, 0.5f, 0.5f);
+                }
+
+                // Draw custom sprite (full sprite, no animation for now)
+                auto *hp = reg.try_get<battle::HealthComp>(e);
+                if (const AnimFrame *f = this->m_enemy_animator->currentFrame()) {
+                    m_renderer->oxDrawSpriteSheet(ex, ey, sprite->width, sprite->height,
+                                                  sprite->texture_id, f->u0, f->v0, f->u1, f->v1,
+                                                  {255, 255, 255, 255});
+                }
+
+                // ── Name ─────────────────────────────────────────────────────────────
+                if (auto *nm = reg.try_get<battle::NameComp>(e)) {
+                    float tw = this->m_renderer->measureText(nm->data, 12);
+                    this->m_renderer->oxDrawText(ex + w * 0.5f - tw * 0.5f, ey - 42.0f, nm->data,
+                                                 12, Color::White(),
+                                                 TextEffect::Outline(Color::Black()), 2);
+                }
+
+                // ── Intent ────────────────────────────────────────────────────────────
+                if (auto *intent = reg.try_get<battle::IntentComp>(e)) {
+                    std::string txt;
+                    switch (intent->type) {
+                    case battle::IntentType::ATTACK:
+                        txt = std::format("ATK {}", intent->damage);
+                        break;
+                    case battle::IntentType::DEFEND:
+                        txt = std::format("BLK {}", intent->block);
+                        break;
+                    case battle::IntentType::BUFF:
+                        txt = "BUFF";
+                        break;
+                    case battle::IntentType::DEBUFF:
+                        txt = "DEBUFF";
+                        break;
+                    case battle::IntentType::SPECIAL:
+                        txt = "SPECIAL";
+                        break;
+                    }
+                    float tw = this->m_renderer->measureText(txt.c_str(), 13);
+                    this->m_renderer->oxDrawText(ex + w * 0.5f - tw * 0.5f, ey - 22.0f, txt.c_str(),
+                                                 13, {255, 210, 80, 255},
+                                                 TextEffect::Outline(Color::Black()), 2);
+                }
+
+                // ── HP bar ────────────────────────────────────────────────────────────
+                if (auto *hp = reg.try_get<battle::HealthComp>(e)) {
+                    float bar_y = ey + h + 6.0f;
+                    this->m_renderer->oxDrawRectangle(ex, bar_y, w, 10.0f, {70, 10, 10, 200}, 2);
+                    float fill = w * hp->ratio();
+                    if (fill > 0)
+                        this->m_renderer->oxDrawRectangle(ex, bar_y, fill, 10.0f,
+                                                          {220, 50, 50, 255}, 2);
+                    std::string t = std::format("{}/{}", hp->current, hp->max);
+                    this->m_renderer->oxDrawText(ex, bar_y + 13.0f, t.c_str(), 11, Color::White(),
+                                                 TextEffect::Outline(Color::Black()), 2);
+                }
+
+                // ── Block badge ───────────────────────────────────────────────────────
+                if (auto *bl = reg.try_get<battle::BlockComp>(e); bl && bl->amount > 0) {
+                    std::string t = std::format("BLK {}", bl->amount);
+                    this->m_renderer->oxDrawText(ex, ey - 58.0f, t.c_str(), 11,
+                                                 {100, 180, 255, 255},
+                                                 TextEffect::Outline(Color::Black()), 2);
+                }
             }
-            float tw = this->m_renderer->measureText(txt.c_str(), 13);
-            this->m_renderer->oxDrawText(ex + w * 0.5f - tw * 0.5f, ey - 22.0f, txt.c_str(), 13,
-                                         {255, 210, 80, 255}, TextEffect::Outline(Color::Black()),
-                                         2);
-        }
-
-        // ── HP bar ────────────────────────────────────────────────────────────
-        if (auto *hp = reg.try_get<battle::HealthComp>(e)) {
-            float bar_y = ey + h + 6.0f;
-            this->m_renderer->oxDrawRectangle(ex, bar_y, w, 10.0f, {70, 10, 10, 200}, 2);
-            float fill = w * hp->ratio();
-            if (fill > 0)
-                this->m_renderer->oxDrawRectangle(ex, bar_y, fill, 10.0f, {220, 50, 50, 255}, 2);
-            std::string t = std::format("{}/{}", hp->current, hp->max);
-            this->m_renderer->oxDrawText(ex, bar_y + 13.0f, t.c_str(), 11, Color::White(),
-                                         TextEffect::Outline(Color::Black()), 2);
-        }
-
-        // ── Block badge ───────────────────────────────────────────────────────
-        if (auto *bl = reg.try_get<battle::BlockComp>(e); bl && bl->amount > 0) {
-            std::string t = std::format("BLK {}", bl->amount);
-            this->m_renderer->oxDrawText(ex, ey - 58.0f, t.c_str(), 11, {100, 180, 255, 255},
-                                         TextEffect::Outline(Color::Black()), 2);
         }
     }
 }
@@ -465,37 +520,19 @@ void SceneGame::drawEnemies()
 // col = main color, glow = halo color, pulse = time accumulator.
 void SceneGame::drawArrowAt(float cx, float top_y, Color col, Color glow)
 {
-    float bob = std::sin(this->m_arrow_pulse * 5.5f) * 5.0f;
-    float tip_y = top_y - 14.0f + bob;
+    float dot_y = top_y - 14.0f;
 
-    constexpr float THICK = 5.0f;
-    constexpr float SHAFT = 16.0f;
-    constexpr float WX = 12.0f;
-    constexpr float WY = 10.0f;
+    float blink = 0.5f + 0.5f * std::sin(this->m_arrow_pulse * 5.0f);
 
-    float shaft_cy = tip_y - WY - SHAFT * 0.5f;
-    float wlen = std::sqrt(WX * WX + WY * WY);
-    float lw_angle = std::atan2(-WY, -WX);
-    float rw_angle = std::atan2(-WY, WX);
-    float lw_cx = cx - WX * 0.5f;
-    float lw_cy = tip_y - WY * 0.5f;
-    float rw_cx = cx + WX * 0.5f;
-    float rw_cy = tip_y - WY * 0.5f;
+    Color glow_alpha = glow;
+    glow_alpha.a *= blink;
+    Color col_alpha = col;
+    col_alpha.a *= blink;
 
-    // Glow layer
-    this->m_renderer->oxDrawRectangle(cx, shaft_cy, THICK + 6, SHAFT + 4, glow, 3, 0.0f, 0.5f,
-                                      0.5f);
-    this->m_renderer->oxDrawRectangle(lw_cx, lw_cy, wlen + 4, THICK + 2, glow, 3, lw_angle, 0.5f,
-                                      0.5f);
-    this->m_renderer->oxDrawRectangle(rw_cx, rw_cy, wlen + 4, THICK + 2, glow, 3, rw_angle, 0.5f,
-                                      0.5f);
-    // Arrow
-    this->m_renderer->oxDrawRectangle(cx, shaft_cy, THICK, SHAFT, col, 4, 0.0f, 0.5f, 0.5f);
-    this->m_renderer->oxDrawRectangle(lw_cx, lw_cy, wlen, THICK, col, 4, lw_angle, 0.5f, 0.5f);
-    this->m_renderer->oxDrawRectangle(rw_cx, rw_cy, wlen, THICK, col, 4, rw_angle, 0.5f, 0.5f);
-    // Dot at tip
-    float dot_r = 5.0f + 2.5f * std::sin(this->m_arrow_pulse * 7.0f);
-    this->m_renderer->oxDrawCircle(cx, tip_y, dot_r, col, 4);
+    float dot_r = 5.0f;
+
+    this->m_renderer->oxDrawCircle(cx, dot_y, dot_r + 3.0f, glow_alpha, 3);
+    this->m_renderer->oxDrawCircle(cx, dot_y, dot_r, col_alpha, 4);
 }
 
 void SceneGame::drawTargetingArrow()
@@ -503,36 +540,38 @@ void SceneGame::drawTargetingArrow()
     if (this->m_card_hand->getSelectedSlot() < 0)
         return;
 
-    uint8_t a = static_cast<uint8_t>(210 + 45 * std::sin(this->m_arrow_pulse * 4.0f));
+    uint8_t a = static_cast<uint8_t>(128 + 127 * std::sin(this->m_arrow_pulse * 4.0f));
 
     if (this->m_self_targeting) {
         // ── Self-targeting card → indicator above player character ────────────
-        // Player sprite
-        float PCX = this->m_player->getX();
-        float PTY = this->m_player->getY();
+        // Arrow should point to top-center of the sprite
+        float sprite_w = this->m_player->getWidth();
+        float sprite_h = this->m_player->getHeight();
+        float PCX = this->m_player->getX() + sprite_w * 0.5f; // center X of sprite
+        float PTY = this->m_player->getY();                   // top Y of sprite
 
         Color col = {60, 160, 255, a};
-        Color glow = {100, 200, 255, static_cast<uint8_t>(a * 50 / 255)};
+        Color glow = {100, 200, 255, static_cast<uint8_t>(a / 4)};
         drawArrowAt(PCX, PTY, col, glow);
 
-        // Highlight around player when hovering
         if (this->m_hovered_self) {
-            float pulse = 1.0f + 0.15f * std::sin(this->m_arrow_pulse * 6.0f);
-            float hw = 36.0f * pulse, hh = 36.0f * pulse;
-            uint8_t ha = static_cast<uint8_t>(70 + 60 * std::sin(this->m_arrow_pulse * 4.0f));
-            this->m_renderer->oxDrawRectangle(PCX, 280.0f + 32.0f, hw * 2.0f, hh * 2.0f,
-                                              {60, 160, 255, ha}, 0, 0.0f, 0.5f, 0.5f);
+            uint8_t ha = static_cast<uint8_t>(50 + 50 * std::sin(this->m_arrow_pulse * 4.0f));
+            this->m_renderer->oxDrawRectangle(
+                this->m_player->getX(), this->m_player->getY(), this->m_player->getWidth(),
+                this->m_player->getHeight(), {60, 160, 255, ha}, 3, 0.0f, 0.5f, 0.5f);
         }
 
     } else if (this->m_hovered_enemy != entt::null) {
-        // ── Enemy-targeting card → indicator above hovered enemy ──────────────
+        // ── Enemy-targeting card → indicator above hovered enemy ────────────
+        // Find the hovered enemy in the render slots
         float enemy_cx = 0.0f;
         float enemy_top = 0.0f;
         bool found = false;
         for (const auto &slot : this->m_enemy_slots) {
             if (slot.entity == this->m_hovered_enemy) {
-                enemy_cx = slot.x + slot.w * 0.5f;
-                enemy_top = slot.y;
+                // Arrow points to top-center of enemy sprite
+                enemy_cx = slot.x + slot.w * 0.5f; // center X
+                enemy_top = slot.y;                // top Y
                 found = true;
                 break;
             }
@@ -541,7 +580,7 @@ void SceneGame::drawTargetingArrow()
             return;
 
         Color col = {255, 50, 50, a};
-        Color glow = {255, 140, 60, static_cast<uint8_t>(a * 55 / 255)};
+        Color glow = {255, 140, 60, static_cast<uint8_t>(a / 4)};
         drawArrowAt(enemy_cx, enemy_top, col, glow);
     }
 }

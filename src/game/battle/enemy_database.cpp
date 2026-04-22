@@ -14,7 +14,7 @@ namespace battle {
 //  Lua field helpers  (same pattern as CardDatabase)
 // ─────────────────────────────────────────────────────────────────────────────
 
-static std::string luaGetString(lua_State* L, const char* key)
+static std::string luaGetString(lua_State *L, const char *key)
 {
     lua_getfield(L, -1, key);
     std::string result;
@@ -24,7 +24,7 @@ static std::string luaGetString(lua_State* L, const char* key)
     return result;
 }
 
-static int32_t luaGetInt(lua_State* L, const char* key, int32_t fallback = 0)
+static int32_t luaGetInt(lua_State *L, const char *key, int32_t fallback = 0)
 {
     lua_getfield(L, -1, key);
     int32_t result = fallback;
@@ -36,7 +36,7 @@ static int32_t luaGetInt(lua_State* L, const char* key, int32_t fallback = 0)
     return result;
 }
 
-static bool luaGetBool(lua_State* L, const char* key, bool fallback = false)
+static bool luaGetBool(lua_State *L, const char *key, bool fallback = false)
 {
     lua_getfield(L, -1, key);
     bool result = fallback;
@@ -50,32 +50,43 @@ static bool luaGetBool(lua_State* L, const char* key, bool fallback = false)
 //  String → enum converters  (done once at load time, zero runtime cost later)
 // ─────────────────────────────────────────────────────────────────────────────
 
-static EnemyType parseEnemyType(const std::string& s)
+static EnemyType parseEnemyType(const std::string &s)
 {
-    if (s == "goblin")      return EnemyType::GOBLIN;
-    if (s == "troll")       return EnemyType::TROLL;
-    if (s == "archer")      return EnemyType::ARCHER;
-    if (s == "dark_knight") return EnemyType::DARK_KNIGHT;
-    if (s == "necromancer") return EnemyType::NECROMANCER;
-    if (s == "boss_dragon") return EnemyType::BOSS_DRAGON;
-    if (s == "boss_lich")   return EnemyType::BOSS_LICH;
+    if (s == "goblin")
+        return EnemyType::GOBLIN;
+    if (s == "troll")
+        return EnemyType::TROLL;
+    if (s == "archer")
+        return EnemyType::ARCHER;
+    if (s == "dark_knight")
+        return EnemyType::DARK_KNIGHT;
+    if (s == "necromancer")
+        return EnemyType::NECROMANCER;
+    if (s == "boss_dragon")
+        return EnemyType::BOSS_DRAGON;
+    if (s == "boss_lich")
+        return EnemyType::BOSS_LICH;
     return EnemyType::SKELETON; // default
 }
 
-static IntentType parseIntentType(const std::string& s)
+static IntentType parseIntentType(const std::string &s)
 {
-    if (s == "defend")  return IntentType::DEFEND;
-    if (s == "buff")    return IntentType::BUFF;
-    if (s == "debuff")  return IntentType::DEBUFF;
-    if (s == "special") return IntentType::SPECIAL;
-    return IntentType::ATTACK;  // default
+    if (s == "defend")
+        return IntentType::DEFEND;
+    if (s == "buff")
+        return IntentType::BUFF;
+    if (s == "debuff")
+        return IntentType::DEBUFF;
+    if (s == "special")
+        return IntentType::SPECIAL;
+    return IntentType::ATTACK; // default
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  parsePatterns — reads the "patterns" array from the table on top of the stack
 // ─────────────────────────────────────────────────────────────────────────────
 
-static std::vector<AIPatternInfo> parsePatterns(lua_State* L)
+static std::vector<AIPatternInfo> parsePatterns(lua_State *L)
 {
     std::vector<AIPatternInfo> result;
 
@@ -93,12 +104,12 @@ static std::vector<AIPatternInfo> parsePatterns(lua_State* L)
         lua_rawgeti(L, -1, i);
         if (lua_istable(L, -1)) {
             AIPatternInfo p;
-            p.action           = parseIntentType(luaGetString(L, "action"));
-            p.damage           = luaGetInt(L, "damage");
-            p.block            = luaGetInt(L, "block");
-            p.times            = luaGetInt(L, "times", 1);
+            p.action = parseIntentType(luaGetString(L, "action"));
+            p.damage = luaGetInt(L, "damage");
+            p.block = luaGetInt(L, "block");
+            p.times = luaGetInt(L, "times", 1);
             p.apply_vulnerable = static_cast<int8_t>(luaGetInt(L, "apply_vulnerable"));
-            p.apply_weak       = static_cast<int8_t>(luaGetInt(L, "apply_weak"));
+            p.apply_weak = static_cast<int8_t>(luaGetInt(L, "apply_weak"));
             result.push_back(p);
         }
         lua_pop(L, 1);
@@ -112,8 +123,7 @@ static std::vector<AIPatternInfo> parsePatterns(lua_State* L)
 //  load
 // ─────────────────────────────────────────────────────────────────────────────
 
-void EnemyDatabase::load(const std::string& path,
-                          std::shared_ptr<AssetsInterface> assets)
+void EnemyDatabase::load(const std::string &path, std::shared_ptr<AssetsInterface> assets)
 {
     m_enemies.clear();
 
@@ -123,19 +133,17 @@ void EnemyDatabase::load(const std::string& path,
         return;
     }
 
-    lua_State* L = luaL_newstate();
+    lua_State *L = luaL_newstate();
     luaL_openlibs(L);
 
     if (luaL_loadstring(L, code.c_str()) != LUA_OK) {
-        LOG_WARN("[EnemyDatabase] Lua syntax error in {}: {}",
-                 path, lua_tostring(L, -1));
+        LOG_WARN("[EnemyDatabase] Lua syntax error in {}: {}", path, lua_tostring(L, -1));
         lua_close(L);
         return;
     }
 
     if (lua_pcall(L, 0, 1, 0) != LUA_OK) {
-        LOG_WARN("[EnemyDatabase] Lua runtime error in {}: {}",
-                 path, lua_tostring(L, -1));
+        LOG_WARN("[EnemyDatabase] Lua runtime error in {}: {}", path, lua_tostring(L, -1));
         lua_close(L);
         return;
     }
@@ -153,14 +161,15 @@ void EnemyDatabase::load(const std::string& path,
         lua_rawgeti(L, -1, i);
         if (lua_istable(L, -1)) {
             EnemyInfo info;
-            info.lua_id        = luaGetString(L, "id");
-            info.name          = luaGetString(L, "name");
-            info.type          = parseEnemyType(luaGetString(L, "type"));
-            info.base_hp       = luaGetInt(L, "base_hp", 10);
-            info.hp_per_level  = luaGetInt(L, "hp_per_level", 2);
+            info.lua_id = luaGetString(L, "id");
+            info.name = luaGetString(L, "name");
+            info.type = parseEnemyType(luaGetString(L, "type"));
+            info.base_hp = luaGetInt(L, "base_hp", 10);
+            info.hp_per_level = luaGetInt(L, "hp_per_level", 2);
             info.passive_regen = static_cast<int8_t>(luaGetInt(L, "passive_regen"));
-            info.is_boss       = luaGetBool(L, "is_boss");
-            info.patterns      = parsePatterns(L);
+            info.is_boss = luaGetBool(L, "is_boss");
+            info.sprite_id = luaGetString(L, "sprite_id");
+            info.patterns = parsePatterns(L);
             m_enemies.push_back(std::move(info));
         }
         lua_pop(L, 1);
@@ -176,17 +185,19 @@ void EnemyDatabase::load(const std::string& path,
 //  Queries
 // ─────────────────────────────────────────────────────────────────────────────
 
-const EnemyInfo* EnemyDatabase::findByType(EnemyType type) const noexcept
+const EnemyInfo *EnemyDatabase::findByType(EnemyType type) const noexcept
 {
-    for (const auto& e : m_enemies)
-        if (e.type == type) return &e;
+    for (const auto &e : m_enemies)
+        if (e.type == type)
+            return &e;
     return nullptr;
 }
 
-const EnemyInfo* EnemyDatabase::findById(const std::string& lua_id) const noexcept
+const EnemyInfo *EnemyDatabase::findById(const std::string &lua_id) const noexcept
 {
-    for (const auto& e : m_enemies)
-        if (e.lua_id == lua_id) return &e;
+    for (const auto &e : m_enemies)
+        if (e.lua_id == lua_id)
+            return &e;
     return nullptr;
 }
 
