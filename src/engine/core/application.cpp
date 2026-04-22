@@ -93,7 +93,7 @@ void Application::mainLoop()
         }
 
 #ifndef NDEBUG
-        this->m_debug_tools->onDraw(this->m_deltaTime);
+        // this->m_debug_tools->onDraw(this->m_deltaTime);
 #endif
         this->m_audio->update(this->m_deltaTime);
         this->m_scenes->onUpdate(this->m_deltaTime);

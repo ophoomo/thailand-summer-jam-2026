@@ -8,11 +8,11 @@
 #include "game/cards/card_database.h"
 #include <memory>
 
-static constexpr float WIDTH_CARD = 180.0f;
-static constexpr float HEIGHT_CARD = 266.0f;
+static constexpr float WIDTH_CARD = 136.0f;
+static constexpr float HEIGHT_CARD = 221.47f;
 
 static constexpr uint32_t MAX_CARD_SLOTS = 4;
-static constexpr float CENTER_HAND = 782;
+static constexpr float CENTER_HAND = 700;
 static constexpr float CARD_GAP = 14;
 
 class CardHand
@@ -27,7 +27,7 @@ class CardHand
     void onUpdate(double dt, float mouse_x, float mouse_y, bool mouse_clicked, bool right_clicked);
 
     // Sync visual cards with the battle hand state (call each frame after battle update)
-    void syncWithBattle(const battle::HandComp& hand);
+    void syncWithBattle(const battle::HandComp &hand);
 
     // Returns the currently selected card slot index, or -1 if none
     int getSelectedSlot() const;

@@ -16,8 +16,7 @@ int main()
 
     try {
         // Application Initializing
-        std::unique_ptr<Application> app =
-            std::make_unique<Application>(1280, 720, "Thailand Summer Jam 2026");
+        std::unique_ptr<Application> app = std::make_unique<Application>(1280, 720, "Heliora");
 
         // Scene Initializing
         std::shared_ptr<SceneSplash> scene_splash = std::make_shared<SceneSplash>(

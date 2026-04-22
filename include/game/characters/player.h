@@ -4,6 +4,7 @@
 #include "animation/animator.h"
 #include "assets/assets_interface.h"
 #include "audio/audio_interface.h"
+#include "game/battle/battle_system.h"
 #include "renderer/ox_renderer.h"
 #include <memory>
 
@@ -14,12 +15,21 @@ class Player
 {
   public:
     Player(std::shared_ptr<OxRenderer> renderer, std::shared_ptr<AssetsInterface> assets,
-           std::shared_ptr<AudioInterface> audio);
+           std::shared_ptr<AudioInterface> audio, std::shared_ptr<battle::BattleSystem> m_battle);
     ~Player();
 
     void onEnter();
     void onDraw();
     void onUpdate(double deltaTime);
+
+    float getX() const
+    {
+        return this->x;
+    }
+    float getY() const
+    {
+        return this->y;
+    }
 
   private:
     void onAttack(int posIndex);
@@ -29,6 +39,9 @@ class Player
     std::shared_ptr<AssetsInterface> m_assets;
     std::shared_ptr<AudioInterface> m_audio;
     std::unique_ptr<Animator> m_animator;
+    std::shared_ptr<battle::BattleSystem> m_battle;
+
+    float x = 180, y = 360;
 
     float m_health = 10.0;
 };

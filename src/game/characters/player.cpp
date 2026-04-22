@@ -1,5 +1,6 @@
 
 #include "game/characters/player.h"
+#include "game/battle/battle_system.h"
 #include "renderer/color.h"
 #include "utils/logger.h"
 #include <cstdlib>
@@ -12,13 +13,15 @@
 // ============================================================
 
 Player::Player(std::shared_ptr<OxRenderer> renderer, std::shared_ptr<AssetsInterface> assets,
-               std::shared_ptr<AudioInterface> audio)
+               std::shared_ptr<AudioInterface> audio,
+               std::shared_ptr<battle::BattleSystem> m_battle)
 {
     LOG_TRACE("[Player] Initializing");
     this->m_renderer = renderer;
     this->m_assets = assets;
     this->m_audio = audio;
     this->m_animator = std::make_unique<Animator>();
+    this->m_battle = m_battle;
 }
 
 Player::~Player()
@@ -88,10 +91,13 @@ void Player::onUpdate(double deltaTime)
 
 void Player::onDraw()
 {
+    auto &reg = this->m_battle->getRegistry();
+    entt::entity player = this->m_battle->getPlayer();
+    auto *hp = reg.try_get<battle::HealthComp>(player);
+    uint8_t hp_opacity = hp->ratio() * 255;
     if (const AnimFrame *f = m_animator->currentFrame()) {
-        m_renderer->oxDrawSpriteSheet(
-            180, 280, 64, 64, "player", f->u0, f->v0, f->u1, f->v1,
-            {255, 255, 255, static_cast<uint8_t>((this->m_health * 255 / 100))});
+        m_renderer->oxDrawSpriteSheet(this->x, this->y, 64, 64, "player", f->u0, f->v0, f->u1,
+                                      f->v1, {255, 255, 255, hp_opacity});
     }
 }
 

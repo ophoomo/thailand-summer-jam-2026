@@ -21,11 +21,13 @@ void SceneGame::onEnter()
     this->m_dispatcher->sink<WindowMouseEvent>().connect<&SceneGame::onMouse>(this);
     this->m_dispatcher->sink<WindowKeyEvent>().connect<&SceneGame::onKeyboard>(this);
 
-    this->m_player = std::make_unique<Player>(this->m_renderer, this->m_assets, this->m_audio);
     this->m_card_hand = std::make_unique<CardHand>(this->m_renderer, this->m_assets, this->m_audio);
-    this->m_timer_gui = std::make_unique<TimerGUI>(this->m_renderer, this->m_audio);
-    this->m_lunar_cycle_gui =
-        std::make_unique<LunarCycleGUI>(this->m_renderer, this->m_assets, this->m_audio);
+    this->m_timer_gui = std::make_unique<TimerGUI>(this->m_renderer, this->m_assets, this->m_audio);
+    this->m_battle = std::make_shared<battle::BattleSystem>(*this->m_dispatcher, this->m_assets);
+    this->m_lunar_cycle_gui = std::make_unique<LunarCycleGUI>(this->m_renderer, this->m_assets,
+                                                              this->m_audio, this->m_battle);
+    this->m_player =
+        std::make_unique<Player>(this->m_renderer, this->m_assets, this->m_audio, this->m_battle);
 
     int w, h, c;
     auto pixel = this->m_assets->loadImage("assets/images/gameplay_bg.png", w, h, c);
@@ -51,7 +53,6 @@ void SceneGame::onEnter()
     this->m_level_reached = 1;
     this->m_prev_phase = battle::CombatPhase::IDLE;
 
-    this->m_battle = std::make_unique<battle::BattleSystem>(*this->m_dispatcher, this->m_assets);
     this->m_battle->startBattle(1);
 }
 
@@ -271,7 +272,7 @@ void SceneGame::onUpdate(double deltaTime)
 
 void SceneGame::onDraw()
 {
-    this->m_renderer->oxDrawSprite(0, 0, 1280, 720, "gameplay_bg", Color::White());
+    this->m_renderer->oxDrawSprite(0, 0, 1280, 720, "gameplay_bg", {255, 255, 255, 100});
     this->m_player->onDraw();
 
     if (this->m_battle) {
@@ -493,9 +494,9 @@ void SceneGame::drawTargetingArrow()
 
     if (this->m_self_targeting) {
         // ── Self-targeting card → indicator above player character ────────────
-        // Player sprite: x=180, y=280, 64×64
-        constexpr float PCX = 180.0f + 32.0f; // center x
-        constexpr float PTY = 280.0f;         // top y
+        // Player sprite
+        float PCX = this->m_player->getX();
+        float PTY = this->m_player->getY();
 
         Color col = {60, 160, 255, a};
         Color glow = {100, 200, 255, static_cast<uint8_t>(a * 50 / 255)};
@@ -545,36 +546,24 @@ void SceneGame::drawHUD()
     if (player != entt::null) {
         constexpr float HX = 24.0f;
 
-        // HP bar
-        if (auto *hp = reg.try_get<battle::HealthComp>(player)) {
-            constexpr float BW = 210.0f, BY = 618.0f;
-            this->m_renderer->oxDrawRectangle(HX, BY, BW, 14.0f, {70, 10, 10, 200}, 3);
-            float fill = BW * hp->ratio();
-            if (fill > 0)
-                this->m_renderer->oxDrawRectangle(HX, BY, fill, 14.0f, {220, 50, 50, 255}, 3);
-            std::string t = std::format("HP  {}/{}", hp->current, hp->max);
-            this->m_renderer->oxDrawText(HX, BY - 18.0f, t.c_str(), 14, Color::White(),
-                                         TextEffect::Outline(Color::Black()), 3);
-        }
-
         // Block
         if (auto *bl = reg.try_get<battle::BlockComp>(player); bl && bl->amount > 0) {
             std::string t = std::format("BLK  {}", bl->amount);
-            this->m_renderer->oxDrawText(HX, 646.0f, t.c_str(), 13, {100, 180, 255, 255},
+            this->m_renderer->oxDrawText(HX, 682.0f, t.c_str(), 13, {100, 180, 255, 255},
                                          TextEffect::Outline(Color::Black()), 3);
         }
 
         // Energy
-        if (auto *en = reg.try_get<battle::EnergyComp>(player)) {
-            std::string t = std::format("NRG  {}/{}", en->current, en->max);
-            this->m_renderer->oxDrawText(260.0f, 646.0f, t.c_str(), 13, {255, 215, 80, 255},
-                                         TextEffect::Outline(Color::Black()), 3);
-        }
+        // if (auto *en = reg.try_get<battle::EnergyComp>(player)) {
+        //     std::string t = std::format("NRG  {}/{}", en->current, en->max);
+        //     this->m_renderer->oxDrawText(260.0f, 646.0f, t.c_str(), 13, {255, 215, 80, 255},
+        //                                  TextEffect::Outline(Color::Black()), 3);
+        // }
 
         // Level
         if (auto *lvl = reg.try_get<battle::LevelComp>(player)) {
             std::string t = std::format("Level {}", lvl->current);
-            this->m_renderer->oxDrawText(HX, 24.0f, t.c_str(), 14, Color::White(),
+            this->m_renderer->oxDrawText(HX, 29.0f, t.c_str(), 16, Color::White(),
                                          TextEffect::Outline(Color::Black()), 3);
         }
     }
@@ -608,7 +597,7 @@ void SceneGame::drawHUD()
     }
     if (phase_txt) {
         float tw = this->m_renderer->measureText(phase_txt, 22);
-        this->m_renderer->oxDrawText(640.0f - tw * 0.5f, 22.0f, phase_txt, 22, phase_col,
+        this->m_renderer->oxDrawText(640.0f - tw * 0.5f, 29.0f, phase_txt, 22, phase_col,
                                      TextEffect::Outline(Color::Black()), 3);
     }
 
@@ -619,27 +608,28 @@ void SceneGame::drawHUD()
         ctx.phase == battle::CombatPhase::PLAYER_TURN) {
         const char *hint = "Click enemy to use card";
         float tw = this->m_renderer->measureText(hint, 14);
-        this->m_renderer->oxDrawText(640.0f - tw * 0.5f, 54.0f, hint, 14, {255, 220, 100, 255},
+        this->m_renderer->oxDrawText(640.0f - tw * 0.5f, 84.0f, hint, 14, {255, 220, 100, 255},
                                      TextEffect::Outline(Color::Black()), 3);
     }
 
     // End Turn button
     if (ctx.phase == battle::CombatPhase::PLAYER_TURN) {
-        bool hover_btn = (this->m_mouse_x >= 1080.0f && this->m_mouse_x <= 1240.0f &&
-                          this->m_mouse_y >= 590.0f && this->m_mouse_y <= 640.0f);
+        bool hover_btn = (this->m_mouse_x >= 1050.0f && this->m_mouse_x <= 1210.0f &&
+                          this->m_mouse_y >= 550.0f && this->m_mouse_y <= 600.0f);
         Color btn_col = hover_btn ? Color{80, 110, 200, 255} : Color{50, 60, 110, 230};
-        this->m_renderer->oxDrawRectangle(1160.0f, 615.0f, 160.0f, 50.0f, btn_col, 2, 0.0f, 0.5f,
+        this->m_renderer->oxDrawRectangle(1050.0f, 550.0f, 160.0f, 50.0f, btn_col, 2, 0.0f, 0.5f,
                                           0.5f);
-        this->m_renderer->oxDrawText(1090.0f, 607.0f, "End Turn [E]", 14, Color::White(),
-                                     TextEffect::Outline(Color::Black()), 3);
+        float tw = this->m_renderer->measureText("END TURN [E]", 14);
+        this->m_renderer->oxDrawText(1040.0f + (tw / 2), 550.0f + 30, "END TURN [E]", 14,
+                                     Color::White(), TextEffect::Outline(Color::Black()), 3);
     }
 
     // Turn counter
     if (ctx.phase != battle::CombatPhase::IDLE) {
         std::string tt = std::format("Turn {}", ctx.turn_number + 1);
-        float tw = this->m_renderer->measureText(tt.c_str(), 12);
-        this->m_renderer->oxDrawText(1280.0f - tw - 12.0f, 24.0f, tt.c_str(), 12,
-                                     {180, 180, 180, 200}, TextEffect::Outline(Color::Black()), 3);
+        float tw = this->m_renderer->measureText(tt.c_str(), 16);
+        this->m_renderer->oxDrawText(1280.0f - tw - 30.0f, 29.0f, tt.c_str(), 16,
+                                     {255, 180, 100, 255}, TextEffect::Outline(Color::Black()), 3);
     }
 }
 
@@ -665,8 +655,8 @@ bool SceneGame::overlayBtn(const char *text, float x, float y, float w, float h)
     float fs = 20.0f;
     float tw = m_renderer->measureText(text, fs);
     float lh = m_renderer->fontMetrics().lineHeight * fs;
-    m_renderer->oxDrawText(x + w * 0.5f - tw * 0.5f, y + h * 0.5f - lh * 0.5f, text, fs,
-                           Color::White(), TextEffect::None(), 24);
+    m_renderer->oxDrawText(x + w * 0.5f - tw * 0.5f, y + h - lh * 0.5f, text, fs, Color::White(),
+                           TextEffect::None(), 24);
     return false; // clicks handled in onUpdate
 }
 

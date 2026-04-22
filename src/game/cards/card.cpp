@@ -61,27 +61,25 @@ void Card::onDraw()
     float glow_t = std::clamp(m_glow_intensity / 150.0f, 0.0f, 1.0f);
     Color card_tint =
         Color::Lerp(Color{255, 255, 255, m_opacity}, Color{97, 156, 250, m_opacity}, glow_t);
-    const std::string& art = m_info.art.empty() ? "card_white" : m_info.art;
+    const std::string &art = m_info.art.empty() ? "card_white" : m_info.art;
     m_renderer->oxDrawSprite(draw_x, draw_y, draw_w, draw_h, art.c_str(), card_tint, base_layer,
                              m_rotation);
 
     if (m_scale > 0.35f) {
         float text_cx = draw_x + draw_w * 0.5f;
-        float text_lx = draw_x + draw_w * 0.07f;
+        float text_lx = draw_x + draw_w * 0.5f;
         float text_max_w = draw_w * 0.86f;
 
         // ── Cost orb (deep moonlight blue, top-left corner)
         if (m_info.cost > 0) {
-            float ocx = draw_x + draw_w * 0.15f;
-            float ocy = draw_y + draw_h * 0.07f;
-            float orb_r = draw_w * 0.09f;
-            m_renderer->oxDrawCircle(ocx, ocy, orb_r, Color{20, 50, 140, 230}, base_layer);
+            float ocx = draw_x + draw_w * 0.5f;
+            float ocy = draw_y + draw_h * 0.18f;
             std::string cs = std::to_string(static_cast<int>(m_info.cost));
-            float ctw = m_renderer->measureText(cs.c_str(), 14);
+            float ctw = m_renderer->measureText(cs.c_str(), 20);
             float lh = m_renderer->fontMetrics().lineHeight * 14.0f;
-            m_renderer->oxDrawText(ocx - ctw * 0.5f, ocy - lh * 0.5f, cs.c_str(), 14,
-                                   Color{200, 230, 255, 255}, TextEffect::Outline(Color{10, 20, 60, 200}),
-                                   base_layer + 1);
+            m_renderer->oxDrawText(ocx - ctw * 0.5f, ocy - lh * 0.5f, cs.c_str(), 20,
+                                   Color{200, 230, 255, 255},
+                                   TextEffect::Outline(Color{10, 20, 60, 200}), base_layer + 1);
         }
 
         // ── Card name (moonlight-toned by type)
@@ -94,13 +92,12 @@ void Card::onDraw()
             else if (m_info.type == "power")
                 name_col = Color{140, 210, 255, 255}; // pale moonlight
         }
-        TextEffect name_fx = is_selected
-            ? TextEffect::Glow(Color{120, 190, 255, 255}, 0.35f, 1.8f)
-            : TextEffect::Outline(Color{10, 20, 60, 220});
+        TextEffect name_fx = is_selected ? TextEffect::Glow(Color{120, 190, 255, 255}, 0.35f, 1.8f)
+                                         : TextEffect::Outline(Color{10, 20, 60, 220});
         {
-            float ntw = m_renderer->measureText(m_info.name.c_str(), 15);
-            m_renderer->oxDrawText(text_cx - ntw * 0.5f, draw_y + 148.0f * m_scale,
-                                   m_info.name.c_str(), 15, name_col, name_fx, base_layer + 1);
+            float ntw = m_renderer->measureText(m_info.name.c_str(), 12);
+            m_renderer->oxDrawText(text_cx - ntw * 0.5f, draw_y + 135.0f * m_scale,
+                                   m_info.name.c_str(), 12, name_col, name_fx, base_layer + 1);
         }
 
         // ── Description with word-wrap (left-aligned, size 11)
@@ -126,31 +123,35 @@ void Card::onDraw()
                 lines.push_back(cur);
 
             for (int li = 0; li < static_cast<int>(lines.size()); li++) {
-                float ly = draw_y + (170.0f + li * line_h) * m_scale;
-                m_renderer->oxDrawText(text_lx, ly, lines[li].c_str(), desc_sz, Color::White(),
-                                       TextEffect::Outline(Color::Black()), base_layer + 1);
+                float ly = draw_y + (160.0f + li * line_h) * m_scale;
+                float tw = m_renderer->measureText(lines[li].c_str(), desc_sz);
+                m_renderer->oxDrawText(text_cx - tw * 0.5f, ly, lines[li].c_str(), desc_sz,
+                                       Color::Black(), TextEffect::Outline(Color::Black()),
+                                       base_layer + 1);
             }
         }
     }
 }
 
-void Card::showCard(const CardInfo& info, float from_y)
+void Card::showCard(const CardInfo &info, float from_y)
 {
-    if (m_info.show && m_info.id == info.id) return;
-    m_particles.clear();    // kill any lingering discard/explosion particles
+    if (m_info.show && m_info.id == info.id)
+        return;
+    m_particles.clear(); // kill any lingering discard/explosion particles
     m_burst_fired = false;
-    m_info      = info;
+    m_info = info;
     m_info.show = true;
-    m_state     = CardState::IDLE;
-    m_opacity   = 255;
-    m_scale     = 1.0f;
-    m_rotation  = 0.0f;
+    m_state = CardState::IDLE;
+    m_opacity = 255;
+    m_scale = 1.0f;
+    m_rotation = 0.0f;
     startFlyIn(from_y);
 }
 
 void Card::hideCard()
 {
-    if (!m_info.show || m_state == CardState::DISCARDING) return;
+    if (!m_info.show || m_state == CardState::DISCARDING)
+        return;
     discard();
 }
 
