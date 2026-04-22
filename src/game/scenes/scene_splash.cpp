@@ -25,19 +25,15 @@ void SceneSplash::onUpdate(double deltaTime)
     float t = (float)this->splashTimer;
 
     if (t < FADE_IN_TIME) {
-        LOG_TRACE("Fade in");
         this->m_alpha = t / FADE_IN_TIME;
     } else if (t < FADE_IN_TIME + HOLD_TIME) {
-        LOG_TRACE("Hold");
         this->m_alpha = 1.0f;
     } else if (t < TOTAL_TIME) {
-        LOG_TRACE("Fade out");
         float fadeProgress = (t - FADE_IN_TIME - HOLD_TIME) / FADE_OUT_TIME;
         this->m_alpha = 1.0f - fadeProgress;
     } else {
-        LOG_TRACE("Next scene");
         if (!this->checkExit) {
-            this->m_dispatcher->trigger(SceneEvent{"menu"});
+            this->m_dispatcher->trigger(SceneEvent{"lang"});
             this->checkExit = true;
         }
     }
