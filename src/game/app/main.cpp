@@ -42,7 +42,7 @@ int main()
         app->getScene()->addScene(scene_lang, "lang");
 
         // Set First Scene
-        app->getScene()->change("menu");
+        app->getScene()->change("splash");
 
         app->run();
     } catch (const std::exception &e) {
