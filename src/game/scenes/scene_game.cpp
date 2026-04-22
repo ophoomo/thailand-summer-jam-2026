@@ -630,10 +630,18 @@ void SceneGame::drawHUD()
         bool hover_btn = (this->m_mouse_x >= 1050.0f && this->m_mouse_x <= 1210.0f &&
                           this->m_mouse_y >= 550.0f && this->m_mouse_y <= 600.0f);
         Color btn_col = hover_btn ? Color{80, 110, 200, 255} : Color{50, 60, 110, 230};
-        this->m_renderer->oxDrawSprite(1050.0f, 550.0f, 160.0f, 50.0f, "button", Color::White(), 2);
+        this->m_renderer->oxDrawSprite(1050.0f, 550.0f, 160.0f, 50.0f, "button", btn_col, 2);
         float tw = this->m_renderer->measureText("END TURN [E]", 14);
-        this->m_renderer->oxDrawText(1040.0f + (tw / 2), 550.0f + 25, "END TURN [E]", 14,
-                                     Color::White(), TextEffect::Outline(Color::Black()), 3);
+        this->m_renderer->oxDrawText(1039.0f + (tw / 2), 580.0f, "END TURN [E]", 14, Color::White(),
+                                     TextEffect::Outline(Color::Black()), 3);
+        if (hover_btn) {
+            if (!this->m_button_hover_sound) {
+                this->m_button_hover_sound = true;
+                this->m_audio->play_sfx("click");
+            }
+        } else {
+            this->m_button_hover_sound = false;
+        }
     }
 
     // Turn counter
