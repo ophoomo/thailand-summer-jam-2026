@@ -4,7 +4,6 @@
 #include "core/scene_manager.h"
 #include "engine/utils/logger.h"
 #include "game/cards/hand.h"
-#include "game/characters/enemy.h"
 #include "renderer/color.h"
 #include "renderer/text_effect.h"
 #include <SDL3/SDL_scancode.h>
@@ -53,7 +52,7 @@ void SceneGame::onEnter()
     this->m_renderer->createTexture("enemy2", pixel, w, h);
     this->m_assets->unLoadImage(pixel);
 
-    pixel = this->m_assets->loadImage("assets/images/ิboss.png", w, h, c);
+    pixel = this->m_assets->loadImage("assets/images/boss.png", w, h, c);
     this->m_renderer->createTexture("boss", pixel, w, h);
     this->m_assets->unLoadImage(pixel);
 
@@ -164,7 +163,6 @@ void SceneGame::onUpdate(double deltaTime)
     this->m_self_targeting = false;
     this->m_hovered_enemy = entt::null;
     this->m_hovered_self = false;
-
     int cur_sel = this->m_card_hand->getSelectedSlot();
     if (cur_sel >= 0 && this->m_battle) {
         entt::entity pe = this->m_battle->getPlayer();
@@ -310,6 +308,7 @@ void SceneGame::onUpdate(double deltaTime)
             this->m_card_hand->syncWithBattle(hand);
         }
     }
+    this->m_lunar_cycle_gui->onMana(this->m_battle.get());
 
     this->m_mouse_clicked = false;
     this->m_right_clicked = false;
@@ -604,13 +603,6 @@ void SceneGame::drawHUD()
             this->m_renderer->oxDrawText(HX, 682.0f, t.c_str(), 13, {100, 180, 255, 255},
                                          TextEffect::Outline(Color::Black()), 3);
         }
-
-        // Energy
-        // if (auto *en = reg.try_get<battle::EnergyComp>(player)) {
-        //     std::string t = std::format("NRG  {}/{}", en->current, en->max);
-        //     this->m_renderer->oxDrawText(260.0f, 646.0f, t.c_str(), 13, {255, 215, 80, 255},
-        //                                  TextEffect::Outline(Color::Black()), 3);
-        // }
 
         // Level
         if (auto *lvl = reg.try_get<battle::LevelComp>(player)) {

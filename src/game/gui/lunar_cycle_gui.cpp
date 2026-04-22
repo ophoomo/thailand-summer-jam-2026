@@ -3,6 +3,7 @@
 #include "game/battle/components.h"
 #include "glm/trigonometric.hpp"
 #include "renderer/color.h"
+#include "renderer/text_effect.h"
 #include "utils/logger.h"
 
 // ============================================================
@@ -67,20 +68,66 @@ void LunarCycleGUI::onDraw()
             index = 0;
         std::string name_texture = std::format("lunar_clock_{}", index);
         this->m_renderer->oxDrawSprite(20, 360, LUNAR_CYCLE_WIDTH, LUNAR_CYCLE_HEIGHT, name_texture,
-                                       Color::White(), 50);
+                                       Color::White(), 20);
     }
     this->m_renderer->oxDrawSprite(20, 360, LUNAR_CYCLE_WIDTH, LUNAR_CYCLE_HEIGHT, "lunar_compass",
-                                   Color::White(), 3, glm::radians(this->m_rotate), 51);
+                                   Color::White(), 22, glm::radians(this->m_current_rotate));
+
+    std::string t = std::format("{}/{}", this->m_mana, this->m_max_mana);
+    this->m_renderer->oxDrawText(240, 680, t.c_str(), 30, Color::White(),
+                                 TextEffect::Outline(Color::Blue()));
 }
 
 void LunarCycleGUI::onUpdate(double dt)
 {
-    this->m_timer += dt;
-    if (this->m_timer >= 1) {
-        this->m_timer = 0;
-        this->m_rotate += 45;
+    float speed = 180.0f;
+
+    float diff = m_target_rotate - m_current_rotate;
+
+    while (diff > 180.0f)
+        diff -= 360.0f;
+    while (diff < -180.0f)
+        diff += 360.0f;
+
+    if (fabs(diff) < 0.1f) {
+        m_current_rotate = m_target_rotate;
+        return;
     }
-    if (this->m_rotate >= 360) {
-        this->m_rotate = 0;
+
+    float step = speed * dt;
+
+    if (step > fabs(diff))
+        step = fabs(diff);
+
+    m_current_rotate += step * (diff > 0.0f ? 1.0f : -1.0f);
+
+    m_current_rotate = fmod(m_current_rotate, 360.0f);
+    if (m_current_rotate < 0.0f)
+        m_current_rotate += 360.0f;
+}
+
+void LunarCycleGUI::onMana(battle::BattleSystem *m_battle)
+{
+    auto &reg = m_battle->getRegistry();
+    entt::entity player = this->m_battle->getPlayer();
+    if (auto *en = reg.try_get<battle::EnergyComp>(player)) {
+        this->m_mana = en->current;
+        this->m_max_mana = en->max;
+        switch (this->m_mana) {
+        case 4:
+            this->m_target_rotate = LUNAR_CYCLE_MANA_4;
+            break;
+        case 3:
+            this->m_target_rotate = LUNAR_CYCLE_MANA_3;
+            break;
+        case 2:
+            this->m_target_rotate = LUNAR_CYCLE_MANA_2;
+            break;
+        case 1:
+            this->m_target_rotate = LUNAR_CYCLE_MANA_1;
+            break;
+        default:
+            this->m_target_rotate = LUNAR_CYCLE_MANA_0;
+        }
     }
 }

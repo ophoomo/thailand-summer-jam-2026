@@ -17,7 +17,7 @@ namespace battle {
 
 inline constexpr int32_t HAND_CAPACITY = 4;
 inline constexpr int32_t STARTER_HP = 80;
-inline constexpr int32_t STARTER_ENERGY = 3;
+inline constexpr int32_t STARTER_ENERGY = 4;
 inline constexpr int32_t MAX_LEVELS = 10;
 
 // ─────────────────────────────────────────────────────────────────────────────
