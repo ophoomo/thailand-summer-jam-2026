@@ -30,11 +30,6 @@ Player::~Player()
     this->m_renderer->freeTexture("player");
     for (int i = 1; i <= 3; i++) {
 
-        std::string name = std::format("player_attack_{}", i);
-        this->m_audio->unload(name);
-    }
-    for (int i = 1; i <= 3; i++) {
-
         std::string name = std::format("player_damaged_{}", i);
         this->m_audio->unload(name);
     }
@@ -56,13 +51,6 @@ void Player::onEnter()
     // Load Audio
     int channels, sample_rate, sample;
     short *data;
-    for (int i = 1; i <= 3; i++) {
-        std::string path = std::format("assets/audio/player/attack{}_sfx.ogg", i);
-        this->m_assets->loadAudio(path.c_str(), channels, sample_rate, data);
-
-        std::string name = std::format("player_attack_{}", i);
-        this->m_audio->load(name, channels, sample, sample_rate, data);
-    }
 
     for (int i = 1; i <= 3; i++) {
         std::string path = std::format("assets/audio/player/damaged{}_sfx.ogg", i);

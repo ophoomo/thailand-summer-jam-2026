@@ -77,6 +77,19 @@ void SceneGame::onEnter()
     sim = this->m_assets->loadAudio("assets/audio/click_sfx.ogg", channels, sample_rate, data);
     this->m_audio->load("click", channels, sim, sample_rate, data);
 
+    sim = this->m_assets->loadAudio("assets/audio/card/heal_sfx.ogg", channels, sample_rate, data);
+    this->m_audio->load("heal", channels, sim, sample_rate, data);
+
+    sim = this->m_assets->loadAudio("assets/audio/card/block_sfx.ogg", channels, sample_rate, data);
+    this->m_audio->load("block", channels, sim, sample_rate, data);
+
+    sim =
+        this->m_assets->loadAudio("assets/audio/card/debuff_sfx.ogg", channels, sample_rate, data);
+    this->m_audio->load("debuff", channels, sim, sample_rate, data);
+
+    sim = this->m_assets->loadAudio("assets/audio/card/skill_sfx.ogg", channels, sample_rate, data);
+    this->m_audio->load("skill", channels, sim, sample_rate, data);
+
     this->m_audio->set_bgm_fade_gain(0);
     this->m_audio->fade_bgm(1.0f, 5.0f);
     this->m_audio->play_bgm("gameplay", true, 0.1);
@@ -309,6 +322,7 @@ void SceneGame::onUpdate(double deltaTime)
         }
     }
     this->m_lunar_cycle_gui->onMana(this->m_battle.get());
+    this->m_enemy_animator->onUpdate(deltaTime);
 
     this->m_mouse_clicked = false;
     this->m_right_clicked = false;
@@ -343,12 +357,18 @@ void SceneGame::onExit()
     this->m_renderer->freeTexture("gameplay_bg");
     this->m_renderer->freeTexture("botoom_bar");
     this->m_renderer->freeTexture("button");
-    this->m_audio->unload("gameplay_bg");
-    this->m_audio->unload("click");
 
     this->m_renderer->freeTexture("enemy1");
     this->m_renderer->freeTexture("enemy2");
     this->m_renderer->freeTexture("boss");
+
+    this->m_audio->unload("gameplay_bg");
+    this->m_audio->unload("click");
+
+    this->m_audio->unload("heal");
+    this->m_audio->unload("block");
+    this->m_audio->unload("skill");
+    this->m_audio->unload("debuff");
 
     if (this->m_battle) {
         this->m_battle->shutdown();
@@ -493,10 +513,10 @@ void SceneGame::drawEnemies()
                     float fill = w * hp->ratio();
                     if (fill > 0)
                         this->m_renderer->oxDrawRectangle(ex, bar_y, fill, 10.0f,
-                                                          {220, 50, 50, 255}, 2);
+                                                          {220, 50, 50, 255}, 3);
                     std::string t = std::format("{}/{}", hp->current, hp->max);
                     this->m_renderer->oxDrawText(ex, bar_y + 13.0f, t.c_str(), 11, Color::White(),
-                                                 TextEffect::Outline(Color::Black()), 2);
+                                                 TextEffect::Outline(Color::Black()), 4);
                 }
 
                 // ── Block badge ───────────────────────────────────────────────────────

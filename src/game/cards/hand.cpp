@@ -60,11 +60,11 @@ void CardHand::onEnter()
     // Load Image
     int channels, sample_rate;
     short *data;
-    auto samples = this->m_assets->loadAudio("assets/audio/card/card-slide-sfx.ogg", channels,
+    auto samples = this->m_assets->loadAudio("assets/audio/card/card_slide_sfx.ogg", channels,
                                              sample_rate, data);
     this->m_audio->load("card_slide_sfx_1", channels, samples, sample_rate, data);
 
-    samples = this->m_assets->loadAudio("assets/audio/card/card-remove-sfx.ogg", channels,
+    samples = this->m_assets->loadAudio("assets/audio/card/card_remove_sfx.ogg", channels,
                                         sample_rate, data);
     this->m_audio->load("card_remove_sfx_1", channels, samples, sample_rate, data);
 

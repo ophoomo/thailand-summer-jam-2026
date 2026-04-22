@@ -15,7 +15,7 @@ static constexpr const char *CARDS_SCRIPT = "assets/scripts/game/cards/cards.lua
 
 BattleSystem::BattleSystem(entt::dispatcher &dispatcher, std::shared_ptr<AssetsInterface> assets,
                            std::shared_ptr<AudioInterface> audio)
-    : m_dispatcher(dispatcher), m_assets(assets), m_turn(dispatcher, assets, audio)
+    : m_dispatcher(dispatcher), m_assets(assets), m_audio(audio), m_turn(dispatcher, assets, audio)
 {
     LOG_TRACE("[BattleSystem] Initialized");
 }
@@ -534,17 +534,22 @@ void BattleSystem::applyCardEffect(const CardInfo &fx, entt::entity target)
         int32_t dmg = calcDamage(m_player, fx.damage, target);
         applyDamage(target, dmg, m_player);
     }
-    if (fx.block > 0)
+    if (fx.block > 0) {
         applyBlock(m_player, fx.block);
+        this->m_audio->play_sfx("block");
+    }
     if (fx.heal > 0) {
         auto *hp = m_reg.try_get<HealthComp>(m_player);
-        if (hp)
+        if (hp) {
             hp->current = std::min(hp->current + fx.heal, hp->max);
+        }
+        this->m_audio->play_sfx("heal");
     }
     if (fx.apply_strength != 0)
         m_reg.get<StrengthComp>(m_player).value += fx.apply_strength;
     if (target != entt::null) {
         if (auto *st = m_reg.try_get<StatusComp>(target)) {
+            this->m_audio->play_sfx("skill");
             if (fx.apply_vulnerable)
                 st->vulnerable = static_cast<int8_t>(
                     std::clamp<int32_t>(st->vulnerable + fx.apply_vulnerable, 0, 127));

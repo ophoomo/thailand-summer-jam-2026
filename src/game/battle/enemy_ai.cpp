@@ -84,6 +84,7 @@ int32_t EnemyAI::executeIntent(entt::registry &reg, entt::entity enemy, entt::en
     case IntentType::ATTACK:
     case IntentType::SPECIAL:
         // BattleSystem owns the damage pipeline (block absorption, events)
+        LOG_TRACE("--------------------------------------- ATTACK");
         raw_damage = intent.damage * intent.times;
         break;
 

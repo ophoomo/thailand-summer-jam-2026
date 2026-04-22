@@ -106,6 +106,7 @@ class BattleSystem
     entt::registry m_reg;
     entt::dispatcher &m_dispatcher;
     std::shared_ptr<AssetsInterface> m_assets;
+    std::shared_ptr<AudioInterface> m_audio;
     CombatContext m_ctx{};
     TurnManager m_turn;
     entt::entity m_player{entt::null};

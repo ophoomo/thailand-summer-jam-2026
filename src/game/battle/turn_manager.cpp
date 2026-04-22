@@ -11,7 +11,7 @@ TurnManager::TurnManager(entt::dispatcher &dispatcher, std::shared_ptr<AssetsInt
 {
     int channels, sample_rate;
     short *data;
-    auto sample = this->m_assets->loadAudio("assets/audio/card/card-new-sfx.ogg", channels,
+    auto sample = this->m_assets->loadAudio("assets/audio/card/card_new_sfx.ogg", channels,
                                             sample_rate, data);
     this->m_audio->load("card_new_1", channels, sample, sample_rate, data);
 }
