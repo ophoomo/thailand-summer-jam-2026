@@ -1,10 +1,10 @@
 
 #include "game/scenes/scene_credit.h"
 #include "game/scenes/scene_game.h"
+#include "game/scenes/scene_language.h"
 #include "game/scenes/scene_menu.h"
 #include "game/scenes/scene_setting.h"
 #include "game/scenes/scene_splash.h"
-#include "game/scenes/scene_language.h"
 #include <engine/core/application.h>
 #include <engine/utils/logger.h>
 #include <exception>
@@ -42,7 +42,7 @@ int main()
         app->getScene()->addScene(scene_lang, "lang");
 
         // Set First Scene
-        app->getScene()->change("splash");
+        app->getScene()->change("menu");
 
         app->run();
     } catch (const std::exception &e) {

@@ -82,23 +82,25 @@ void CardDatabase::load(const std::string &path, std::shared_ptr<AssetsInterface
         lua_rawgeti(L, -1, i);
         if (lua_istable(L, -1)) {
             CardInfo info;
-            info.id               = static_cast<int>(m_cards.size());
-            info.lua_id           = getStringField(L, "id");
-            info.name             = getStringField(L, "name");
-            info.detail           = getStringField(L, "description");
-            info.type             = getStringField(L, "type");
-            info.cost             = static_cast<uint8_t>(getIntField(L, "cost"));
-            info.show             = true;
-            info.damage           = getIntField(L, "damage");
-            info.block            = getIntField(L, "block");
-            info.heal             = getIntField(L, "heal");
+            info.id = static_cast<int>(m_cards.size());
+            info.lua_id = getStringField(L, "id");
+            info.name = getStringField(L, "name");
+            info.inner = getStringField(L, "inner");
+            info.detail = getStringField(L, "description");
+            info.type = getStringField(L, "type");
+            info.cost = static_cast<uint8_t>(getIntField(L, "cost"));
+            info.show = true;
+            info.damage = getIntField(L, "damage");
+            info.block = getIntField(L, "block");
+            info.heal = getIntField(L, "heal");
             info.apply_vulnerable = static_cast<int8_t>(getIntField(L, "apply_vulnerable"));
-            info.apply_weak       = static_cast<int8_t>(getIntField(L, "apply_weak"));
-            info.apply_strength   = static_cast<int8_t>(getIntField(L, "apply_strength"));
-            info.exhaust          = getBoolField(L, "exhaust");
+            info.apply_weak = static_cast<int8_t>(getIntField(L, "apply_weak"));
+            info.apply_strength = static_cast<int8_t>(getIntField(L, "apply_strength"));
+            info.exhaust = getBoolField(L, "exhaust");
             {
                 std::string a = getStringField(L, "art");
-                if (!a.empty()) info.art = a;
+                if (!a.empty())
+                    info.art = a;
             }
             m_cards.push_back(std::move(info));
         }

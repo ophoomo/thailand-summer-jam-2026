@@ -11,6 +11,9 @@
 static constexpr float WIDTH_CARD = 136.0f;
 static constexpr float HEIGHT_CARD = 221.47f;
 
+static constexpr float INNER_WIDTH_CARD = 105.0f;
+static constexpr float INNER_HEIGHT_CARD = 85.0f;
+
 static constexpr uint32_t MAX_CARD_SLOTS = 4;
 static constexpr float CENTER_HAND = 700;
 static constexpr float CARD_GAP = 14;

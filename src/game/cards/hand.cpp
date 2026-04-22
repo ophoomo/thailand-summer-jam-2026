@@ -28,6 +28,7 @@ CardHand::~CardHand()
     this->m_renderer->freeTexture("card_white");
     this->m_renderer->freeTexture("card_dark");
     this->m_renderer->freeTexture("card_skill");
+    this->m_renderer->freeTexture("skill_inner");
     this->m_audio->unload("card_slide_sfx_1");
     this->m_audio->unload("card_remove_sfx_1");
 }
@@ -50,6 +51,10 @@ void CardHand::onEnter()
 
     pixel = this->m_assets->loadImage("assets/images/card/card_skill.png", w, h, c);
     this->m_renderer->createTexture("card_skill", pixel, w, h);
+    this->m_assets->unLoadImage(pixel);
+
+    pixel = this->m_assets->loadImage("assets/images/card/skill_inner.png", w, h, c);
+    this->m_renderer->createTexture("skill_inner", pixel, w, h);
     this->m_assets->unLoadImage(pixel);
 
     // Load Image

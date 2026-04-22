@@ -1,5 +1,6 @@
 
 #include "game/cards/card.h"
+#include "game/cards/hand.h"
 #include "renderer/text_effect.h"
 #include "utils/logger.h"
 #include <sstream>
@@ -44,7 +45,7 @@ void Card::onUpdate(double dt)
 
 void Card::onDraw()
 {
-    int32_t base_layer = is_selected ? 3 : 2;
+    int32_t base_layer = is_selected ? 8 : 7;
 
     // Lingering explosion particles are drawn even after the sprite disappears
     m_particles.draw(m_renderer, 1, base_layer + 2);
@@ -64,6 +65,12 @@ void Card::onDraw()
     const std::string &art = m_info.art.empty() ? "card_white" : m_info.art;
     m_renderer->oxDrawSprite(draw_x, draw_y, draw_w, draw_h, art.c_str(), card_tint, base_layer,
                              m_rotation);
+
+    float ix = draw_x + 15.0f * m_scale;
+    float iy = draw_y + 34.0f * m_scale;
+
+    m_renderer->oxDrawSprite(ix, iy, INNER_WIDTH_CARD * m_scale, INNER_HEIGHT_CARD * m_scale,
+                             m_info.inner, Color::White(), base_layer - 1);
 
     if (m_scale > 0.35f) {
         float text_cx = draw_x + draw_w * 0.5f;

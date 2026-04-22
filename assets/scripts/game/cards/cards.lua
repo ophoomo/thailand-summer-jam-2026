@@ -6,6 +6,7 @@ return {
     {
         id          = "moonlight_strike",
         name        = "Moonlight Strike",
+        inner       = "skill_inner",
         description = "Deal 6 damage to an enemy.",
         cost        = 1,
         type        = "attack",
@@ -16,6 +17,7 @@ return {
     {
         id          = "shield_bash",
         name        = "Shield Bash",
+        inner       = "skill_inner",
         description = "Gain 4 Block. Deal 3 damage.",
         cost        = 1,
         type        = "attack",
@@ -27,6 +29,7 @@ return {
     {
         id          = "lunar_heal",
         name        = "Lunar Heal",
+        inner       = "skill_inner",
         description = "Restore 8 HP.",
         cost        = 2,
         type        = "skill",
@@ -37,6 +40,7 @@ return {
     {
         id          = "shadow_step",
         name        = "Shadow Step",
+        inner       = "skill_inner",
         description = "Gain 6 Block. Apply 1 Weak to enemy.",
         cost        = 1,
         type        = "skill",
@@ -48,6 +52,7 @@ return {
     {
         id          = "cleave",
         name        = "Cleave",
+        inner       = "skill_inner",
         description = "Deal 12 damage to an enemy.",
         cost        = 2,
         type        = "attack",
@@ -58,6 +63,7 @@ return {
     {
         id          = "iron_wall",
         name        = "Iron Wall",
+        inner       = "skill_inner",
         description = "Gain 8 Block.",
         cost        = 1,
         type        = "skill",
@@ -68,6 +74,7 @@ return {
     {
         id             = "war_cry",
         name           = "War Cry",
+        inner          = "skill_inner",
         description    = "Gain 3 Strength this combat. Exhaust.",
         cost           = 2,
         type           = "power",
@@ -79,6 +86,7 @@ return {
     {
         id               = "bash",
         name             = "Bash",
+        inner            = "skill_inner",
         description      = "Deal 8 damage. Apply 1 Vulnerable.",
         cost             = 2,
         type             = "attack",
@@ -89,6 +97,7 @@ return {
     {
         id             = "phoom_cry",
         name           = "Phoom Cry",
+        inner          = "skill_inner",
         description    = "Gain 1 Strength this combat. Exhaust.",
         cost           = 1,
         type           = "power",
@@ -99,6 +108,7 @@ return {
     {
         id             = "basic_noob",
         name           = "Basic Noob",
+        inner          = "skill_inner",
         description    = "Gain -1 Strength this combat. Exhaust.",
         cost           = 1,
         type           = "power",
