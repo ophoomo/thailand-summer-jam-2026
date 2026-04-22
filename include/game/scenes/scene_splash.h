@@ -8,8 +8,8 @@ static constexpr float HOLD_TIME     = 2.0f;
 static constexpr float FADE_OUT_TIME = 1.5f;
 static constexpr float TOTAL_TIME    = FADE_IN_TIME + HOLD_TIME + FADE_OUT_TIME;
 
-static constexpr float LOGO_W = 400.0f;
-static constexpr float LOGO_H = 200.0f;
+static constexpr float LOGO_W = 702.0f;
+static constexpr float LOGO_H = 144.0f;
 static constexpr float LOGO_X = (1280.0f - LOGO_W) / 2.0f;
 static constexpr float LOGO_Y = (720.0f  - LOGO_H) / 2.0f;
 
