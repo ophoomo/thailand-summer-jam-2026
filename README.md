@@ -63,5 +63,5 @@ MSVC (Window)
 - [Thailand Summer Jam 2026](https://itch.io/jam/thailand-summer-jam-2026)
 - [ThePillowy](https://thepillowy.itch.io/)
 - [@xthebasicx](https://github.com/xthebasicx)
-- lapis5537
+- [Speto](https://speto-sandbox.itch.io/)
 - Open-source libraries used via submodules

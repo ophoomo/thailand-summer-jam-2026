@@ -29,6 +29,7 @@ CardHand::~CardHand()
     this->m_renderer->freeTexture("card_dark");
     this->m_renderer->freeTexture("card_skill");
     this->m_audio->unload("card_slide_sfx_1");
+    this->m_audio->unload("card_remove_sfx_1");
 }
 
 // ============================================================
@@ -54,16 +55,20 @@ void CardHand::onEnter()
     // Load Image
     int channels, sample_rate;
     short *data;
-    auto samples = this->m_assets->loadAudio("assets/audio/card/card-slide-sfx-1.ogg", channels,
+    auto samples = this->m_assets->loadAudio("assets/audio/card/card-slide-sfx.ogg", channels,
                                              sample_rate, data);
     this->m_audio->load("card_slide_sfx_1", channels, samples, sample_rate, data);
+
+    samples = this->m_assets->loadAudio("assets/audio/card/card-remove-sfx.ogg", channels,
+                                        sample_rate, data);
+    this->m_audio->load("card_remove_sfx_1", channels, samples, sample_rate, data);
 
     m_db.load("assets/scripts/game/cards/cards.lua", this->m_assets);
 
     // Start all cards hidden; syncWithBattle will populate them from battle state
     for (int i = 0; i < static_cast<int>(MAX_CARD_SLOTS); i++) {
         CardInfo empty;
-        empty.id   = i;
+        empty.id = i;
         empty.show = false;
         this->m_cards[i]->onEnter(empty, WIDTH_CARD, HEIGHT_CARD);
         m_synced_ids[i] = -1;
@@ -99,14 +104,15 @@ void CardHand::onUpdate(double dt, float mouse_x, float mouse_y, bool mouse_clic
 // Battle Sync
 // ============================================================
 
-void CardHand::syncWithBattle(const battle::HandComp& hand)
+void CardHand::syncWithBattle(const battle::HandComp &hand)
 {
     for (int i = 0; i < static_cast<int>(MAX_CARD_SLOTS); i++) {
         int32_t new_id = (i < hand.count) ? hand.slots[static_cast<size_t>(i)] : -1;
-        if (new_id == m_synced_ids[i]) continue;
+        if (new_id == m_synced_ids[i])
+            continue;
         m_synced_ids[i] = new_id;
         if (new_id >= 0) {
-            const CardInfo* info = m_db.findByIndex(new_id);
+            const CardInfo *info = m_db.findByIndex(new_id);
             if (info) {
                 m_cards[i]->setSelected(false);
                 m_cards[i]->showCard(*info);
@@ -121,14 +127,16 @@ void CardHand::syncWithBattle(const battle::HandComp& hand)
 int CardHand::getSelectedSlot() const
 {
     for (int i = 0; i < static_cast<int>(MAX_CARD_SLOTS); i++) {
-        if (m_cards[i]->getSelected()) return i;
+        if (m_cards[i]->getSelected())
+            return i;
     }
     return -1;
 }
 
 void CardHand::clearSelection()
 {
-    for (auto& card : m_cards) card->setSelected(false);
+    for (auto &card : m_cards)
+        card->setSelected(false);
 }
 
 std::pair<float, float> CardHand::getSelectedCardCenter() const
@@ -216,6 +224,7 @@ void CardHand::calculatePositionCardInHand()
         if (right_hit) {
             m_last_discarded_slot = i;
             this->m_cards[i]->discard();
+            this->m_audio->play_sfx_3d("card_remove_sfx_1", soundX, 0.0f, -3.0f, 0.65);
         }
     }
 }

@@ -13,8 +13,9 @@ static constexpr const char *CARDS_SCRIPT = "assets/scripts/game/cards/cards.lua
 //  Construction
 // ─────────────────────────────────────────────────────────────────────────────
 
-BattleSystem::BattleSystem(entt::dispatcher &dispatcher, std::shared_ptr<AssetsInterface> assets)
-    : m_dispatcher(dispatcher), m_assets(std::move(assets)), m_turn(dispatcher)
+BattleSystem::BattleSystem(entt::dispatcher &dispatcher, std::shared_ptr<AssetsInterface> assets,
+                           std::shared_ptr<AudioInterface> audio)
+    : m_dispatcher(dispatcher), m_assets(assets), m_turn(dispatcher, assets, audio)
 {
     LOG_TRACE("[BattleSystem] Initialized");
 }

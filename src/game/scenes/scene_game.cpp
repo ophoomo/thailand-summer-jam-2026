@@ -23,7 +23,8 @@ void SceneGame::onEnter()
 
     this->m_card_hand = std::make_unique<CardHand>(this->m_renderer, this->m_assets, this->m_audio);
     this->m_timer_gui = std::make_unique<TimerGUI>(this->m_renderer, this->m_assets, this->m_audio);
-    this->m_battle = std::make_shared<battle::BattleSystem>(*this->m_dispatcher, this->m_assets);
+    this->m_battle =
+        std::make_shared<battle::BattleSystem>(*this->m_dispatcher, this->m_assets, this->m_audio);
     this->m_lunar_cycle_gui = std::make_unique<LunarCycleGUI>(this->m_renderer, this->m_assets,
                                                               this->m_audio, this->m_battle);
     this->m_player =
@@ -32,6 +33,14 @@ void SceneGame::onEnter()
     int w, h, c;
     auto pixel = this->m_assets->loadImage("assets/images/gameplay_bg.png", w, h, c);
     this->m_renderer->createTexture("gameplay_bg", pixel, w, h);
+    this->m_assets->unLoadImage(pixel);
+
+    pixel = this->m_assets->loadImage("assets/images/gui/bottom_bar.png", w, h, c);
+    this->m_renderer->createTexture("bottom_bar", pixel, w, h);
+    this->m_assets->unLoadImage(pixel);
+
+    pixel = this->m_assets->loadImage("assets/images/gui/button.png", w, h, c);
+    this->m_renderer->createTexture("button", pixel, w, h);
     this->m_assets->unLoadImage(pixel);
 
     int channels, sample_rate;
@@ -218,9 +227,10 @@ void SceneGame::onUpdate(double deltaTime)
             }
 
             // E or End Turn button click
-            bool btn_click = this->m_mouse_clicked && this->m_mouse_x >= 1080.0f &&
-                             this->m_mouse_x <= 1240.0f && this->m_mouse_y >= 590.0f &&
-                             this->m_mouse_y <= 640.0f;
+            bool btn_click = this->m_mouse_clicked && this->m_mouse_x >= 1050.0f &&
+                             this->m_mouse_x <= 1210.0f && this->m_mouse_y >= 550.0f &&
+                             this->m_mouse_y <= 600.0f;
+
             if (this->m_key_end_turn || btn_click) {
                 this->m_timer_gui->stopTurn();
                 this->m_card_hand->clearSelection();
@@ -273,6 +283,7 @@ void SceneGame::onUpdate(double deltaTime)
 void SceneGame::onDraw()
 {
     this->m_renderer->oxDrawSprite(0, 0, 1280, 720, "gameplay_bg", {255, 255, 255, 100});
+    this->m_renderer->oxDrawSprite(0, 0, 1280, 720, "bottom_bar", {255, 255, 255, 255}, 2);
     this->m_player->onDraw();
 
     if (this->m_battle) {
@@ -294,6 +305,8 @@ void SceneGame::onExit()
     this->m_dispatcher->sink<WindowKeyEvent>().disconnect(this);
     this->m_audio->stop_bgm();
     this->m_renderer->freeTexture("gameplay_bg");
+    this->m_renderer->freeTexture("botoom_bar");
+    this->m_renderer->freeTexture("button");
     this->m_audio->unload("gameplay_bg");
 
     if (this->m_battle) {
@@ -617,10 +630,9 @@ void SceneGame::drawHUD()
         bool hover_btn = (this->m_mouse_x >= 1050.0f && this->m_mouse_x <= 1210.0f &&
                           this->m_mouse_y >= 550.0f && this->m_mouse_y <= 600.0f);
         Color btn_col = hover_btn ? Color{80, 110, 200, 255} : Color{50, 60, 110, 230};
-        this->m_renderer->oxDrawRectangle(1050.0f, 550.0f, 160.0f, 50.0f, btn_col, 2, 0.0f, 0.5f,
-                                          0.5f);
+        this->m_renderer->oxDrawSprite(1050.0f, 550.0f, 160.0f, 50.0f, "button", Color::White(), 2);
         float tw = this->m_renderer->measureText("END TURN [E]", 14);
-        this->m_renderer->oxDrawText(1040.0f + (tw / 2), 550.0f + 30, "END TURN [E]", 14,
+        this->m_renderer->oxDrawText(1040.0f + (tw / 2), 550.0f + 25, "END TURN [E]", 14,
                                      Color::White(), TextEffect::Outline(Color::Black()), 3);
     }
 
