@@ -34,6 +34,11 @@ struct EvCardPlayed {
     entt::entity target;   // entt::null if no target
 };
 
+struct EvPlayerAttack {
+    entt::entity player;
+    int32_t      damage;
+};
+
 struct EvCardDiscarded {
     entt::entity player;
     int32_t      card_id;

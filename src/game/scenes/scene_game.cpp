@@ -23,6 +23,7 @@ void SceneGame::onEnter()
     this->m_dispatcher->sink<WindowMouseEvent>().connect<&SceneGame::onMouse>(this);
     this->m_dispatcher->sink<WindowKeyEvent>().connect<&SceneGame::onKeyboard>(this);
     this->m_dispatcher->sink<battle::EvEnemyAttack>().connect<&SceneGame::onEnemyAttack>(this);
+    this->m_dispatcher->sink<battle::EvPlayerAttack>().connect<&SceneGame::onPlayerAttack>(this);
 
     this->m_card_hand = std::make_unique<CardHand>(this->m_renderer, this->m_assets, this->m_audio);
     this->m_timer_gui = std::make_unique<TimerGUI>(this->m_renderer, this->m_assets, this->m_audio);
@@ -127,6 +128,8 @@ void SceneGame::onUpdate(double deltaTime)
     // ── Update per-entity animation states ────────────────────────────────────
     if (this->m_battle) {
         auto &reg = this->m_battle->getRegistry();
+        
+        // Update enemy animations
         for (auto e : reg.view<battle::AnimComp, battle::EnemyTag>()) {
             auto &anim = reg.get<battle::AnimComp>(e);
             if (anim.is_playing) {
@@ -139,6 +142,24 @@ void SceneGame::onUpdate(double deltaTime)
                     anim.current_anim = "idle";
                     anim.elapsed = 0.0f;
                     anim.frame = 0;
+                }
+            }
+        }
+        
+        // Update player animations
+        entt::entity player = this->m_battle->getPlayer();
+        if (player != entt::null) {
+            if (auto *anim = reg.try_get<battle::AnimComp>(player)) {
+                if (anim->is_playing) {
+                    anim->elapsed += fdt;
+                    anim->frame = static_cast<int32_t>(anim->elapsed / 0.1f);
+                    
+                    // Check if attack animation is complete (4 frames at 0.1s each = 0.4s)
+                    if (anim->current_anim == "attack" && anim->elapsed >= 0.4f) {
+                        anim->current_anim = "idle";
+                        anim->elapsed = 0.0f;
+                        anim->frame = 0;
+                    }
                 }
             }
         }
@@ -394,6 +415,7 @@ void SceneGame::onExit()
     this->m_dispatcher->sink<WindowMouseEvent>().disconnect(this);
     this->m_dispatcher->sink<WindowKeyEvent>().disconnect(this);
     this->m_dispatcher->sink<battle::EvEnemyAttack>().disconnect(this);
+    this->m_dispatcher->sink<battle::EvPlayerAttack>().disconnect(this);
     this->m_audio->stop_bgm();
     this->m_renderer->freeTexture("gameplay_bg");
     this->m_renderer->freeTexture("botoom_bar");
@@ -900,6 +922,18 @@ void SceneGame::onEnemyAttack(const battle::EvEnemyAttack &event)
 {
     auto &reg = this->m_battle->getRegistry();
     auto anim = reg.try_get_or_emplace<battle::AnimComp>(event.enemy);
+    anim->current_anim = "attack";
+    anim->elapsed = 0.0f;
+    anim->frame = 0;
+    anim->is_playing = true;
+    anim->loop = true;
+}
+
+void SceneGame::onPlayerAttack(const battle::EvPlayerAttack &event)
+{
+    entt::entity player = this->m_battle->getPlayer();
+    auto &reg = this->m_battle->getRegistry();
+    auto anim = reg.try_get_or_emplace<battle::AnimComp>(player);
     anim->current_anim = "attack";
     anim->elapsed = 0.0f;
     anim->frame = 0;

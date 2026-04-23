@@ -98,10 +98,41 @@ void Player::onDraw()
                                      TextEffect::Outline(Color::Black()), 2);
     }
 
-    if (const AnimFrame *f = m_animator->currentFrame()) {
-        m_renderer->oxDrawSpriteSheet(this->x, this->y, WIDTH_PLAYER, HEIGHT_PLAYER, "player",
-                                      f->u0, f->v0, f->u1, f->v1, {255, 255, 255, hp_opacity});
+    // ── Determine animation frame to draw ────────────────────────────────
+    int frame = 0;
+    std::string anim_name = "idle";
+    
+    if (auto *anim = reg.try_get<battle::AnimComp>(player)) {
+        anim_name = anim->current_anim;
+        frame = anim->frame;
     }
+
+    // Draw sprite with current animation frame
+    float u0_flip, u1_flip, v0, v1;
+    if (anim_name == "attack") {
+        // Attack animation: row 1 (bottom half)
+        frame = frame % 4;
+        u0_flip = (frame + 1) * 0.25f;
+        u1_flip = frame * 0.25f;
+        v0 = 0.5f;
+        v1 = 1.0f;
+    } else {
+        // Idle animation: row 0 (top half) - fallback to Animator
+        if (const AnimFrame *f = m_animator->currentFrame()) {
+            u0_flip = f->u0;
+            u1_flip = f->u1;
+            v0 = f->v0;
+            v1 = f->v1;
+        } else {
+            u0_flip = 0.25f;
+            u1_flip = 0.0f;
+            v0 = 0.0f;
+            v1 = 0.5f;
+        }
+    }
+
+    m_renderer->oxDrawSpriteSheet(this->x, this->y, WIDTH_PLAYER, HEIGHT_PLAYER, "player",
+                                  u0_flip, v0, u1_flip, v1, {255, 255, 255, hp_opacity});
 }
 
 // ============================================================

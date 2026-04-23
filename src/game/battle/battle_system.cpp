@@ -435,6 +435,12 @@ void BattleSystem::playerPlayCard(int32_t hand_slot, entt::entity preferred_targ
     hand.removeAt(hand_slot);
 
     m_dispatcher.enqueue<EvCardPlayed>({m_player, card_id, target});
+    
+    // Emit attack event if card deals damage
+    if (fx->damage > 0) {
+        m_dispatcher.enqueue<EvPlayerAttack>({m_player, fx->damage});
+    }
+    
     m_resolving_card = true;
     transitionTo(CombatPhase::RESOLVE_DEATHS);
 }
