@@ -37,7 +37,8 @@ class RendererInterface
     virtual void SubmitSpriteVertices(const Vertex2D *verts, uint32_t quadCount,
                                       TextureHandle texture) = 0;
 
-    virtual TextureHandle createTexture(const uint8_t *pixels, int width, int height) = 0;
+    virtual TextureHandle createTexture(const uint8_t *pixels, int width, int height,
+                                        bool srgb = true) = 0;
     virtual void destroyTexture(TextureHandle handle) = 0;
     virtual void waitIdle() {}
 

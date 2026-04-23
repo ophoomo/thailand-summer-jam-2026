@@ -1,4 +1,3 @@
-#include <stdexcept>
 #include "renderer/ox_renderer.h"
 #include "renderer/camera.h"
 #include "renderer/msdf_font.h"
@@ -9,6 +8,7 @@
 #include <cmath>
 #include <glm/glm.hpp>
 #include <memory>
+#include <stdexcept>
 
 // ============================================================
 // Construction / destruction
@@ -132,7 +132,8 @@ void OxRenderer::oxDrawText(float x, float y, const char *text, float size, Colo
     const float textH = size;
     const float pivotX = x + originX * textW;
     const float pivotY = y + originY * textH;
-    this->m_textCommands.push_back({text, x, y, size, color.Pack(), layer, effect, rotation, pivotX, pivotY});
+    this->m_textCommands.push_back(
+        {text, x, y, size, color.Pack(), layer, effect, rotation, pivotX, pivotY});
     // Key layout: layer(8) | type=2(8) | 0(48)
     const uint64_t key = (static_cast<uint64_t>(std::clamp(layer, 0, 255)) << 56) | (2ULL << 48);
     m_drawList.push_back({key, 2, idx});
@@ -142,8 +143,8 @@ void OxRenderer::oxDrawSprite(float x, float y, float w, float h, const std::str
                               Color tint, int32_t layer, float rotation, float originX,
                               float originY)
 {
-    oxDrawSpriteSheet(x, y, w, h, texture_name, 0.f, 0.f, 1.f, 1.f, tint, layer, rotation,
-                      originX, originY);
+    oxDrawSpriteSheet(x, y, w, h, texture_name, 0.f, 0.f, 1.f, 1.f, tint, layer, rotation, originX,
+                      originY);
 }
 
 void OxRenderer::oxDrawSpriteSheet(float x, float y, float w, float h,
@@ -155,8 +156,8 @@ void OxRenderer::oxDrawSpriteSheet(float x, float y, float w, float h,
     if (handle == INVALID_TEXTURE)
         return;
     const uint32_t idx = static_cast<uint32_t>(m_spriteCommands.size());
-    m_spriteCommands.push_back(
-        {x, y, w, h, u0, v0, u1, v1, handle, tint.Pack(), layer, rotation, originX * w, originY * h});
+    m_spriteCommands.push_back({x, y, w, h, u0, v0, u1, v1, handle, tint.Pack(), layer, rotation,
+                                originX * w, originY * h});
     // Key layout: layer(8) | type=1(8) | texture_id(16) | 0(32)  — groups same-texture sprites
     const uint64_t key = (static_cast<uint64_t>(std::clamp(layer, 0, 255)) << 56) | (1ULL << 48) |
                          (static_cast<uint64_t>(handle & 0xFFFF) << 32);
@@ -180,7 +181,7 @@ void OxRenderer::loadFont(const nlohmann::json j, const uint8_t *raw, const int 
     this->m_font = std::make_unique<MsdfFont>();
     this->m_font->load(j, raw, w, h);
     const TextureHandle tex = this->m_renderer->createTexture(
-        this->m_font->pixels(), this->m_font->atlas().width, this->m_font->atlas().height);
+        this->m_font->pixels(), this->m_font->atlas().width, this->m_font->atlas().height, false);
 
     if (tex == INVALID_TEXTURE) {
         LOG_CORE_ERROR("[OxRenderer] createTexture failed for font atlas");
@@ -256,10 +257,10 @@ void OxRenderer::writeQuadVertices(uint32_t i, Vertex2D *out) const
 
     // Winding order: TL → TR → BR → BL  (matches index buffer 0,1,2, 0,2,3)
     const glm::vec2 corners[4] = {
-        {0.f,  0.f },
-        {sz.x, 0.f },
+        {0.f, 0.f},
+        {sz.x, 0.f},
         {sz.x, sz.y},
-        {0.f,  sz.y},
+        {0.f, sz.y},
     };
     const glm::vec2 uvs[4] = {
         {uvMin.x, uvMin.y},
@@ -406,10 +407,10 @@ void OxRenderer::flushAll()
             curTex = cmd.texture;
 
             const glm::vec2 corners[4] = {
-                {cmd.x,         cmd.y        },
-                {cmd.x + cmd.w, cmd.y        },
+                {cmd.x, cmd.y},
+                {cmd.x + cmd.w, cmd.y},
                 {cmd.x + cmd.w, cmd.y + cmd.h},
-                {cmd.x,         cmd.y + cmd.h},
+                {cmd.x, cmd.y + cmd.h},
             };
             const float uvs[4][2] = {
                 {cmd.u0, cmd.v0},

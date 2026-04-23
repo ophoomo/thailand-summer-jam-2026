@@ -14,7 +14,8 @@ class VulkanTexture
         uint32_t queueFamily;
     };
 
-    VulkanTexture(const UploadContext &ctx, const uint8_t *pixels, int width, int height);
+    VulkanTexture(const UploadContext &ctx, const uint8_t *pixels, int width, int height,
+                  bool srgb = true);
     ~VulkanTexture();
 
     VulkanTexture(const VulkanTexture &) = delete;

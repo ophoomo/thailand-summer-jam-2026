@@ -38,9 +38,10 @@ class VulkanRenderer : public RendererInterface
     void EndFrame() override;
 
     void SubmitVertices(const Vertex2D *verts, uint32_t quadCount, PipelineID pipeline) override;
-    TextureHandle createTexture(const uint8_t *pixels, int width, int height) override;
-    void SubmitTextVertices(const Vertex2D *verts, uint32_t quadCount,
-                            TextureHandle texture, const TextEffectGPU &effect) override;
+    TextureHandle createTexture(const uint8_t *pixels, int width, int height,
+                                bool srgb = true) override;
+    void SubmitTextVertices(const Vertex2D *verts, uint32_t quadCount, TextureHandle texture,
+                            const TextEffectGPU &effect) override;
     void SubmitSpriteVertices(const Vertex2D *verts, uint32_t quadCount,
                               TextureHandle texture) override;
     void destroyTexture(TextureHandle handle) override;

@@ -119,8 +119,8 @@ void VulkanRenderer::BeginFrame()
                        VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(screenSize), screenSize);
 
     vkCmdPushConstants(cmdBuffer, this->m_pipelineManager->getTextLayout(),
-                       VK_SHADER_STAGE_FRAGMENT_BIT, sizeof(screenSize),
-                       sizeof(m_msdfUnitRange), m_msdfUnitRange);
+                       VK_SHADER_STAGE_FRAGMENT_BIT, sizeof(screenSize), sizeof(m_msdfUnitRange),
+                       m_msdfUnitRange);
 }
 
 void VulkanRenderer::EndFrame()
@@ -159,8 +159,8 @@ void VulkanRenderer::EndFrame()
         if (batch.pipeline == PipelineID::Text) {
             constexpr uint32_t effectOffset = sizeof(float) * 4; // after screenSize+unitRange
             vkCmdPushConstants(cmd, this->m_pipelineManager->getTextLayout(),
-                               VK_SHADER_STAGE_FRAGMENT_BIT, effectOffset,
-                               sizeof(TextEffectGPU), &batch.effect);
+                               VK_SHADER_STAGE_FRAGMENT_BIT, effectOffset, sizeof(TextEffectGPU),
+                               &batch.effect);
         }
 
         const VkDeviceSize byteOffset = batch.vertexOffset * 4 * sizeof(Vertex2D);
@@ -246,9 +246,9 @@ void VulkanRenderer::SubmitSpriteVertices(const Vertex2D *verts, uint32_t quadCo
     this->m_batches.push_back({vertexOffset, quadCount, PipelineID::Sprite, texture});
 }
 
-TextureHandle VulkanRenderer::createTexture(const uint8_t *pixels, int width, int height)
+TextureHandle VulkanRenderer::createTexture(const uint8_t *pixels, int width, int height, bool srgb)
 {
-    return this->m_textureManager->upload(pixels, width, height);
+    return this->m_textureManager->upload(pixels, width, height, srgb);
 }
 
 void VulkanRenderer::destroyTexture(TextureHandle handle)

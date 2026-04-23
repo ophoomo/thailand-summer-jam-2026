@@ -1,6 +1,6 @@
-#include <stdexcept>
 #include "renderer/vulkan/vulkan_texture_manager.h"
 #include "utils/logger.h"
+#include <stdexcept>
 
 // ============================================================
 // Construction / destruction
@@ -35,7 +35,7 @@ void VulkanTextureManager::init(VkDevice device, VkPhysicalDevice physDevice, Vk
         throw std::runtime_error("[VulkanTextureManager] Failed to create descriptor pool");
 }
 
-TextureHandle VulkanTextureManager::upload(const uint8_t *pixels, int width, int height)
+TextureHandle VulkanTextureManager::upload(const uint8_t *pixels, int width, int height, bool srgb)
 {
     if (m_pool == VK_NULL_HANDLE) {
         LOG_CORE_ERROR("[VulkanTextureManager] upload() called before init()");
@@ -45,7 +45,7 @@ TextureHandle VulkanTextureManager::upload(const uint8_t *pixels, int width, int
     Entry entry;
 
     // Upload pixels to GPU.
-    entry.texture = std::make_unique<VulkanTexture>(m_ctx, pixels, width, height);
+    entry.texture = std::make_unique<VulkanTexture>(m_ctx, pixels, width, height, srgb);
 
     // Allocate descriptor set.
     VkDescriptorSetAllocateInfo ai{VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO};
