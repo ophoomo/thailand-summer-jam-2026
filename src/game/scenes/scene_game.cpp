@@ -925,11 +925,11 @@ void SceneGame::onEnemyAttack(const battle::EvEnemyAttack &event)
 {
     auto &reg = this->m_battle->getRegistry();
     auto anim = reg.get_or_emplace<battle::AnimComp>(event.enemy);
-    anim->current_anim = "attack";
-    anim->elapsed = 0.0f;
-    anim->frame = 0;
-    anim->is_playing = true;
-    anim->loop = true;
+    anim.current_anim = "attack";
+    anim.elapsed = 0.0f;
+    anim.frame = 0;
+    anim.is_playing = true;
+    anim.loop = true;
 }
 
 void SceneGame::onPlayerAttack(const battle::EvPlayerAttack &event)
@@ -937,11 +937,11 @@ void SceneGame::onPlayerAttack(const battle::EvPlayerAttack &event)
     entt::entity player = this->m_battle->getPlayer();
     auto &reg = this->m_battle->getRegistry();
     auto anim = reg.get_or_emplace<battle::AnimComp>(player);
-    anim->current_anim = "attack";
-    anim->elapsed = 0.0f;
-    anim->frame = 0;
-    anim->is_playing = true;
-    anim->loop = true;
+    anim.current_anim = "attack";
+    anim.elapsed = 0.0f;
+    anim.frame = 0;
+    anim.is_playing = true;
+    anim.loop = true;
 }
 
 void SceneGame::onDamageDealt(const battle::EvDamageDealt &event)
