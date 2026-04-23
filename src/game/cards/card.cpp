@@ -62,7 +62,7 @@ void Card::onDraw()
     float glow_t = std::clamp(m_glow_intensity / 150.0f, 0.0f, 1.0f);
     Color card_tint =
         Color::Lerp(Color{255, 255, 255, m_opacity}, Color{97, 156, 250, m_opacity}, glow_t);
-    const std::string &art = m_info.art.empty() ? "card_white" : m_info.art;
+    const std::string &art = m_info.art.empty() ? "card_skill" : m_info.art;
     m_renderer->oxDrawSprite(draw_x, draw_y, draw_w, draw_h, art.c_str(), card_tint, base_layer,
                              m_rotation);
 

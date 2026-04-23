@@ -14,7 +14,7 @@ struct CardInfo
     std::string type; // "attack" | "skill" | "power"
     uint8_t cost = 0;
     bool show = true;
-    std::string art{"card_white"}; // texture key: "card_white" | "card_dark" | "card_skill"
+    std::string art{"card_skill"}; // texture key: "card_white" | "card_dark" | "card_skill"
 
     // ── Battle mechanics (loaded from Lua) ────────────────────────────────────
     int32_t damage = 0;

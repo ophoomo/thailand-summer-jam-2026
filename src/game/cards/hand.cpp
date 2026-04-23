@@ -25,8 +25,8 @@ CardHand::CardHand(std::shared_ptr<OxRenderer> m_renderer,
 CardHand::~CardHand()
 {
     LOG_TRACE("[CardHand] Destroy");
-    this->m_renderer->freeTexture("card_white");
-    this->m_renderer->freeTexture("card_dark");
+    this->m_renderer->freeTexture("card_defend");
+    this->m_renderer->freeTexture("card_attack");
     this->m_renderer->freeTexture("card_skill");
     this->m_renderer->freeTexture("skill_inner");
     this->m_audio->unload("card_slide_sfx_1");
@@ -41,12 +41,12 @@ void CardHand::onEnter()
 {
     // Load Image
     int w, h, c;
-    auto pixel = this->m_assets->loadImage("assets/images/card/card_white.png", w, h, c);
-    this->m_renderer->createTexture("card_white", pixel, w, h);
+    auto pixel = this->m_assets->loadImage("assets/images/card/card_defend.png", w, h, c);
+    this->m_renderer->createTexture("card_defend", pixel, w, h);
     this->m_assets->unLoadImage(pixel);
 
-    pixel = this->m_assets->loadImage("assets/images/card/card_dark.png", w, h, c);
-    this->m_renderer->createTexture("card_dark", pixel, w, h);
+    pixel = this->m_assets->loadImage("assets/images/card/card_attack.png", w, h, c);
+    this->m_renderer->createTexture("card_attack", pixel, w, h);
     this->m_assets->unLoadImage(pixel);
 
     pixel = this->m_assets->loadImage("assets/images/card/card_skill.png", w, h, c);
