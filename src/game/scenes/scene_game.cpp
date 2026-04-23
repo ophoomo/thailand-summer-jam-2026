@@ -93,6 +93,12 @@ void SceneGame::onEnter()
     sim = this->m_assets->loadAudio("assets/audio/card/skill_sfx.ogg", channels, sample_rate, data);
     this->m_audio->load("skill", channels, sim, sample_rate, data);
 
+    sim = this->m_assets->loadAudio("assets/audio/death_sfx.ogg", channels, sample_rate, data);
+    this->m_audio->load("death", channels, sim, sample_rate, data);
+
+    sim = this->m_assets->loadAudio("assets/audio/victory_sfx.ogg", channels, sample_rate, data);
+    this->m_audio->load("victory", channels, sim, sample_rate, data);
+
     this->m_audio->set_bgm_fade_gain(0);
     this->m_audio->fade_bgm(1.0f, 5.0f);
     this->m_audio->play_bgm("gameplay", true, 0.1);
@@ -307,11 +313,15 @@ void SceneGame::onUpdate(double deltaTime)
                 if (ctx2.phase == battle::CombatPhase::DEFEAT) {
                     this->m_level_reached = ctx2.turn_number;
                     this->m_overlay = OverlayState::GAME_OVER;
+                    this->m_audio->play_sfx("death");
+                    this->m_audio->stop_bgm();
                 } else if (ctx2.phase == battle::CombatPhase::IDLE &&
                            this->m_prev_phase == battle::CombatPhase::VICTORY) {
                     // All levels cleared — final boss defeated
                     this->m_level_reached = ctx2.turn_number;
                     this->m_overlay = OverlayState::VICTORY;
+                    this->m_audio->play_sfx("victory");
+                    this->m_audio->stop_bgm();
                 }
             }
             this->m_prev_phase = ctx2.phase;
@@ -374,6 +384,9 @@ void SceneGame::onExit()
     this->m_audio->unload("block");
     this->m_audio->unload("skill");
     this->m_audio->unload("debuff");
+
+    this->m_audio->unload("death");
+    this->m_audio->unload("victory");
 
     if (this->m_battle) {
         this->m_battle->shutdown();
@@ -621,13 +634,6 @@ void SceneGame::drawHUD()
 
     if (player != entt::null) {
         constexpr float HX = 24.0f;
-
-        // Block
-        if (auto *bl = reg.try_get<battle::BlockComp>(player); bl && bl->amount > 0) {
-            std::string t = std::format("BLK  {}", bl->amount);
-            this->m_renderer->oxDrawText(HX, 682.0f, t.c_str(), 13, {100, 180, 255, 255},
-                                         TextEffect::Outline(Color::Black()), 3);
-        }
 
         // Level
         if (auto *lvl = reg.try_get<battle::LevelComp>(player)) {
