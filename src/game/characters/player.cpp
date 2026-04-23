@@ -54,7 +54,7 @@ void Player::onEnter()
 
     for (int i = 1; i <= 3; i++) {
         std::string path = std::format("assets/audio/player/damaged{}_sfx.ogg", i);
-        this->m_assets->loadAudio(path.c_str(), channels, sample_rate, data);
+        sample = this->m_assets->loadAudio(path.c_str(), channels, sample_rate, data);
 
         std::string name = std::format("player_damaged_{}", i);
         this->m_audio->load(name, channels, sample, sample_rate, data);
@@ -97,22 +97,6 @@ void Player::onDamaged(int posIndex)
 {
     int soundIndex = std::rand() % 3 + 1;
     std::string soundName = "player_damaged_" + std::to_string(soundIndex);
-
-    float x = 0.0f;
-    if (posIndex == 0)
-        x = -1.0f;
-    else if (posIndex == 1)
-        x = 0.0f;
-    else
-        x = 1.0f;
-
-    this->m_audio->play_sfx_3d(soundName.c_str(), x, 0.0f, -2.0f);
-}
-
-void Player::onAttack(int posIndex)
-{
-    int soundIndex = std::rand() % 3 + 1;
-    std::string soundName = "player_attack_" + std::to_string(soundIndex);
 
     float x = 0.0f;
     if (posIndex == 0)
