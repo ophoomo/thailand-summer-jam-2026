@@ -81,11 +81,11 @@
   },
   "card": {
     "moonlight_strike": {
-      "name": "Moonlight Strike",
+      "name": "Lunar Beam",
       "desc": "Deal 6 damage to an enemy."
     },
     "shield_bash": {
-      "name": "Shield Bash",
+      "name": "Full Moon",
       "desc": "Gain 4 Block. Deal 3 damage."
     },
     "lunar_heal": {
@@ -93,23 +93,23 @@
       "desc": "Restore 8 HP."
     },
     "shadow_step": {
-      "name": "Shadow Step",
+      "name": "Shadow Veil",
       "desc": "Gain 6 Block. Apply 1 Weak to enemy."
     },
     "cleave": {
-      "name": "Cleave",
+      "name": "Arcane Explosion",
       "desc": "Deal 12 damage to an enemy."
     },
     "iron_wall": {
-      "name": "Iron Wall",
+      "name": "Lunar Shield",
       "desc": "Gain 8 Block."
     },
     "war_cry": {
-      "name": "War Cry",
+      "name": "Lunar Empowerment",
       "desc": "Gain 3 Strength this combat."
     },
     "bash": {
-      "name": "Bash",
+      "name": "Cursed Moonstrike",
       "desc": "Deal 8 damage. Apply 1 Vulnerable."
     }
   }

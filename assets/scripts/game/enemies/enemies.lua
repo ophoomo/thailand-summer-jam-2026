@@ -28,7 +28,7 @@ return {
 
     {
         id           = "skeleton",
-        name         = "Skeleton",
+        name         = "Cinder Spark",
         type         = "skeleton",
         sprite_id    = "enemy1",
         base_hp      = 18,
@@ -42,7 +42,7 @@ return {
 
     {
         id           = "goblin",
-        name         = "Goblin",
+        name         = "Flicker Flame",
         type         = "goblin",
         sprite_id    = "enemy2",
         base_hp      = 14,
@@ -59,7 +59,7 @@ return {
 
     {
         id            = "troll",
-        name          = "Troll",
+        name          = "Blazing Ember",
         type          = "troll",
         sprite_id     = "enemy1",
         base_hp       = 40,
@@ -75,7 +75,7 @@ return {
 
     {
         id           = "archer",
-        name         = "Archer",
+        name         = "Scorch Flame",
         type         = "archer",
         sprite_id    = "enemy2",
         base_hp      = 22,
@@ -92,7 +92,7 @@ return {
 
     {
         id           = "dark_knight",
-        name         = "Dark Knight",
+        name         = "Inferno Core",
         type         = "dark_knight",
         sprite_id    = "enemy2",
         base_hp      = 50,
@@ -107,7 +107,7 @@ return {
 
     {
         id           = "necromancer",
-        name         = "Necromancer",
+        name         = "Ifrit",
         type         = "necromancer",
         sprite_id    = "enemy2",
         base_hp      = 35,
@@ -141,7 +141,7 @@ return {
 
     {
         id           = "boss_lich",
-        name         = "Lich",
+        name         = "Heliora",
         type         = "boss_lich",
         sprite_id    = "boss",
         base_hp      = 160,
