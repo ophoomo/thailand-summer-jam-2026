@@ -310,6 +310,8 @@ void BattleSystem::phaseEnemyTurn(double /*dt*/)
             if (raw > 0) {
                 int32_t dmg = calcDamage(enemy, raw, m_player);
                 applyDamage(m_player, dmg, enemy);
+                // Emit attack event for animation system
+                m_dispatcher.enqueue<EvEnemyAttack>({enemy, dmg});
             }
         }
     }

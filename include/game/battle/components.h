@@ -206,6 +206,20 @@ struct SpriteComp
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
+//  Animation component  (per-entity animation state)
+// ─────────────────────────────────────────────────────────────────────────────
+
+struct AnimComp
+{
+    std::string current_anim;  // name of currently playing animation
+    float elapsed{0.0f};       // time spent in current animation
+    int32_t frame{0};          // current frame index
+    bool is_playing{false};    // whether animation is active
+    bool loop{false};          // whether animation should loop
+};
+
+
+// ─────────────────────────────────────────────────────────────────────────────
 //  Turn ordering
 // ─────────────────────────────────────────────────────────────────────────────
 

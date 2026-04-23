@@ -69,6 +69,12 @@ struct EvEnemyIntentChanged {
     entt::entity enemy;
 };
 
+struct EvEnemyAttack {
+    entt::entity enemy;
+    int32_t damage;
+};
+
+
 struct EvLevelComplete {
     int32_t level_completed;
     int32_t next_level;

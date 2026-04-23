@@ -22,6 +22,7 @@ void SceneGame::onEnter()
     LOG_TRACE("[SceneGame] Enter");
     this->m_dispatcher->sink<WindowMouseEvent>().connect<&SceneGame::onMouse>(this);
     this->m_dispatcher->sink<WindowKeyEvent>().connect<&SceneGame::onKeyboard>(this);
+    this->m_dispatcher->sink<battle::EvEnemyAttack>().connect<&SceneGame::onEnemyAttack>(this);
 
     this->m_card_hand = std::make_unique<CardHand>(this->m_renderer, this->m_assets, this->m_audio);
     this->m_timer_gui = std::make_unique<TimerGUI>(this->m_renderer, this->m_assets, this->m_audio);
@@ -122,6 +123,26 @@ void SceneGame::onUpdate(double deltaTime)
     const float fdt = static_cast<float>(deltaTime);
     this->m_arrow_pulse += fdt;
     this->m_enemy_anim_time += fdt;
+
+    // ── Update per-entity animation states ────────────────────────────────────
+    if (this->m_battle) {
+        auto &reg = this->m_battle->getRegistry();
+        for (auto e : reg.view<battle::AnimComp, battle::EnemyTag>()) {
+            auto &anim = reg.get<battle::AnimComp>(e);
+            if (anim.is_playing) {
+                anim.elapsed += fdt;
+                // Simple frame update: 0.1 seconds per frame
+                anim.frame = static_cast<int32_t>(anim.elapsed / 0.1f);
+                
+                // Check if attack animation is complete (4 frames at 0.1s each = 0.4s)
+                if (anim.current_anim == "attack" && anim.elapsed >= 0.4f) {
+                    anim.current_anim = "idle";
+                    anim.elapsed = 0.0f;
+                    anim.frame = 0;
+                }
+            }
+        }
+    }
 
     // ── ESC: toggle pause (only during player turn) ───────────────────────────
     if (this->m_key_escape) {
@@ -372,6 +393,7 @@ void SceneGame::onExit()
     LOG_TRACE("[SceneGame] Exit");
     this->m_dispatcher->sink<WindowMouseEvent>().disconnect(this);
     this->m_dispatcher->sink<WindowKeyEvent>().disconnect(this);
+    this->m_dispatcher->sink<battle::EvEnemyAttack>().disconnect(this);
     this->m_audio->stop_bgm();
     this->m_renderer->freeTexture("gameplay_bg");
     this->m_renderer->freeTexture("botoom_bar");
@@ -443,13 +465,6 @@ void SceneGame::drawEnemies()
     int n = static_cast<int>(enemies.size());
     float sx = 900.0f - (n - 1) * SPACING * 0.5f;
 
-    // Idle animation: 4 frames across top row of player sheet, flipped
-    int frame = static_cast<int>(this->m_enemy_anim_time / 0.12f) % 4;
-    float u0_flip = (frame + 1) * 0.25f;
-    float u1_flip = frame * 0.25f;
-    constexpr float V0 = 0.0f;
-    constexpr float V1 = 0.5f;
-
     for (int i = 0; i < n; ++i) {
 
         entt::entity e = enemies[i];
@@ -486,13 +501,39 @@ void SceneGame::drawEnemies()
                                                       {255, 60, 60, ha}, 3, 0.0f, 0.5f, 0.5f);
                 }
 
-                // Draw custom sprite (full sprite, no animation for now)
-                auto *hp = reg.try_get<battle::HealthComp>(e);
-                if (const AnimFrame *f = this->m_enemy_animator->currentFrame()) {
-                    m_renderer->oxDrawSpriteSheet(ex, ey, sprite->width, sprite->height,
-                                                  sprite->texture_id, f->u0, f->v0, f->u1, f->v1,
-                                                  {255, 255, 255, 255});
+                // ── Determine animation frame to draw ────────────────────────────────
+                int frame = 0;
+                std::string anim_name = "idle";
+                
+                if (auto *anim = reg.try_get<battle::AnimComp>(e)) {
+                    anim_name = anim->current_anim;
+                    frame = anim->frame;
+                } else {
+                    // Default idle animation: 4 frames across top row
+                    frame = static_cast<int>(this->m_enemy_anim_time / 0.1f) % 4;
                 }
+
+                // Draw sprite with current animation frame
+                float u0_flip, u1_flip, v0, v1;
+                if (anim_name == "attack") {
+                    // Attack animation: row 1 (bottom half)
+                    frame = frame % 4;
+                    u0_flip = (frame + 1) * 0.25f;
+                    u1_flip = frame * 0.25f;
+                    v0 = 0.5f;
+                    v1 = 1.0f;
+                } else {
+                    // Idle animation: row 0 (top half)
+                    frame = frame % 4;
+                    u0_flip = (frame + 1) * 0.25f;
+                    u1_flip = frame * 0.25f;
+                    v0 = 0.0f;
+                    v1 = 0.5f;
+                }
+
+                m_renderer->oxDrawSpriteSheet(ex, ey, sprite->width, sprite->height,
+                                              sprite->texture_id, u0_flip, v0, u1_flip, v1,
+                                              {255, 255, 255, 255});
 
                 // ── Name ─────────────────────────────────────────────────────────────
                 if (auto *nm = reg.try_get<battle::NameComp>(e)) {
@@ -854,3 +895,15 @@ void SceneGame::onKeyboard(const WindowKeyEvent &event)
     else if (event.key == SDL_SCANCODE_ESCAPE)
         this->m_key_escape = true;
 }
+
+void SceneGame::onEnemyAttack(const battle::EvEnemyAttack &event)
+{
+    auto &reg = this->m_battle->getRegistry();
+    auto anim = reg.try_get_or_emplace<battle::AnimComp>(event.enemy);
+    anim->current_anim = "attack";
+    anim->elapsed = 0.0f;
+    anim->frame = 0;
+    anim->is_playing = true;
+    anim->loop = true;
+}
+
