@@ -20,11 +20,11 @@ void SceneLanguage::onEnter()
 
     m_ui->AddButton("btn_en", {BTN_EN_X, BTN_Y, BTN_W, BTN_H},
                     "English", 32.0f, -1,
-                    Color(50, 100, 200, 255), 1);
+                    Color(255, 255, 255, 30), 1);
 
     m_ui->AddButton("btn_th", {BTN_TH_X, BTN_Y, BTN_W, BTN_H},
                     "ภาษาไทย", 32.0f, -1,
-                    Color(40, 160, 80, 255), 1);
+                    Color(255, 255, 255, 30), 1);
 }
 
 void SceneLanguage::onUpdate(double deltaTime)

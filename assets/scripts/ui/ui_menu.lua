@@ -49,63 +49,63 @@ function on_enter()
     })
 
     -- Settings
-    UI.add_button("btn_setting", {
-        x           = BTN_X,
-        y           = btn_y(1),
-        w           = BTN_W,
-        h           = BTN_H,
-        text        = tr("menu.settings"),
-        color       = BTN_COLOR,
-        hover_color = BTN_HOVER_COLOR,
-        press_color = BTN_PRESS_COLOR,
-        text_color  = BTN_TEXT_COLOR,
-        layer       = 1,
-
-        on_click    = function()
-            Scene.change("setting")
-        end,
-
-        on_hover    = function()
-            UI.set_text("hint", "Adjust audio, graphics and controls")
-            onHoverAudio()
-        end,
-
-        on_unhover  = function()
-            UI.set_text("hint", "")
-        end
-    })
+    --UI.add_button("btn_setting", {
+    --    x           = BTN_X,
+    --    y           = btn_y(1),
+    --    w           = BTN_W,
+    --    h           = BTN_H,
+    --    text        = tr("menu.settings"),
+    --    color       = BTN_COLOR,
+    --    hover_color = BTN_HOVER_COLOR,
+    --    press_color = BTN_PRESS_COLOR,
+    --    text_color  = BTN_TEXT_COLOR,
+    --    layer       = 1,
+    --
+    --    on_click    = function()
+    --        Scene.change("setting")
+    --    end,
+    --
+    --    on_hover    = function()
+    --        UI.set_text("hint", "Adjust audio, graphics and controls")
+    --        onHoverAudio()
+    --    end,
+    --
+    --    on_unhover  = function()
+    --        UI.set_text("hint", "")
+    --    end
+    --})
 
     -- Credits
-    UI.add_button("btn_credit", {
-        x           = BTN_X,
-        y           = btn_y(2),
-        w           = BTN_W,
-        h           = BTN_H,
-        text        = tr("menu.credits"),
-        color       = BTN_COLOR,
-        hover_color = BTN_HOVER_COLOR,
-        press_color = BTN_PRESS_COLOR,
-        text_color  = BTN_TEXT_COLOR,
-        layer       = 1,
-
-        on_click    = function()
-            Scene.change("credit")
-        end,
-
-        on_hover    = function()
-            UI.set_text("hint", "View the team")
-            onHoverAudio()
-        end,
-
-        on_unhover  = function()
-            UI.set_text("hint", "")
-        end
-    })
+    --UI.add_button("btn_credit", {
+    --    x           = BTN_X,
+    --    y           = btn_y(1),
+    --    w           = BTN_W,
+    --    h           = BTN_H,
+    --    text        = tr("menu.credits"),
+    --    color       = BTN_COLOR,
+    --    hover_color = BTN_HOVER_COLOR,
+    --    press_color = BTN_PRESS_COLOR,
+    --    text_color  = BTN_TEXT_COLOR,
+    --    layer       = 1,
+    --
+    --    on_click    = function()
+    --        Scene.change("credit")
+    --    end,
+    --
+    --    on_hover    = function()
+    --        UI.set_text("hint", "View the team")
+    --        onHoverAudio()
+    --    end,
+    --
+    --    on_unhover  = function()
+    --        UI.set_text("hint", "")
+    --    end
+    --})
 
     -- Quit
     UI.add_button("btn_quit", {
         x           = BTN_X,
-        y           = btn_y(3),
+        y           = btn_y(1),
         w           = BTN_W,
         h           = BTN_H,
         text        = tr("menu.quit"),

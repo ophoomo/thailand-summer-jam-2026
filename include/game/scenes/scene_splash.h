@@ -3,8 +3,8 @@
 
 #include "engine/core/scene.h"
 
-static constexpr float FADE_IN_TIME  = 2.0f;
-static constexpr float HOLD_TIME     = 2.0f;
+static constexpr float FADE_IN_TIME  = 1.5f;
+static constexpr float HOLD_TIME     = 1.0f;
 static constexpr float FADE_OUT_TIME = 1.5f;
 static constexpr float TOTAL_TIME    = FADE_IN_TIME + HOLD_TIME + FADE_OUT_TIME;
 
