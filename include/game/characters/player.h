@@ -38,10 +38,10 @@ class Player
     {
         return HEIGHT_PLAYER;
     }
+    void onDamaged(int posIndex);
 
   private:
     void onAttack(int posIndex);
-    void onDamaged(int posIndex);
 
     std::shared_ptr<OxRenderer> m_renderer;
     std::shared_ptr<AssetsInterface> m_assets;

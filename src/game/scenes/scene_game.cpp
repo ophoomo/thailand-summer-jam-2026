@@ -924,7 +924,7 @@ void SceneGame::onKeyboard(const WindowKeyEvent &event)
 void SceneGame::onEnemyAttack(const battle::EvEnemyAttack &event)
 {
     auto &reg = this->m_battle->getRegistry();
-    auto anim = reg.try_get_or_emplace<battle::AnimComp>(event.enemy);
+    auto anim = reg.get_or_emplace<battle::AnimComp>(event.enemy);
     anim->current_anim = "attack";
     anim->elapsed = 0.0f;
     anim->frame = 0;
@@ -936,7 +936,7 @@ void SceneGame::onPlayerAttack(const battle::EvPlayerAttack &event)
 {
     entt::entity player = this->m_battle->getPlayer();
     auto &reg = this->m_battle->getRegistry();
-    auto anim = reg.try_get_or_emplace<battle::AnimComp>(player);
+    auto anim = reg.get_or_emplace<battle::AnimComp>(player);
     anim->current_anim = "attack";
     anim->elapsed = 0.0f;
     anim->frame = 0;
