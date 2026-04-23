@@ -77,9 +77,6 @@ void SceneGame::onEnter()
         this->m_assets->loadAudio("assets/audio/gameplay_bgm.ogg", channels, sample_rate, data);
     this->m_audio->load("gameplay", channels, sim, sample_rate, data);
 
-    sim = this->m_assets->loadAudio("assets/audio/click_sfx.ogg", channels, sample_rate, data);
-    this->m_audio->load("click", channels, sim, sample_rate, data);
-
     sim = this->m_assets->loadAudio("assets/audio/card/heal_sfx.ogg", channels, sample_rate, data);
     this->m_audio->load("heal", channels, sim, sample_rate, data);
 
@@ -98,6 +95,9 @@ void SceneGame::onEnter()
 
     sim = this->m_assets->loadAudio("assets/audio/victory_sfx.ogg", channels, sample_rate, data);
     this->m_audio->load("victory", channels, sim, sample_rate, data);
+
+    sim = this->m_assets->loadAudio("assets/audio/no_mana_sfx.ogg", channels, sample_rate, data);
+    this->m_audio->load("no_mana", channels, sim, sample_rate, data);
 
     this->m_audio->set_bgm_fade_gain(0);
     this->m_audio->fade_bgm(1.0f, 5.0f);
@@ -379,7 +379,7 @@ void SceneGame::onExit()
     this->m_renderer->freeTexture("boss");
 
     this->m_audio->unload("gameplay_bg");
-    this->m_audio->unload("click");
+    this->m_audio->unload("no_mana");
 
     this->m_audio->unload("heal");
     this->m_audio->unload("block");
@@ -731,6 +731,13 @@ static std::string fmtTime(float secs)
 bool SceneGame::overlayBtn(const char *text, float x, float y, float w, float h)
 {
     bool hov = m_mouse_x >= x && m_mouse_x <= x + w && m_mouse_y >= y && m_mouse_y <= y + h;
+    if (hov) {
+        if (m_last_hovered_btn_id != text) {
+            m_audio->play_sfx("click");
+            m_last_hovered_btn_id = text;
+        }
+    }
+
     Color bg = hov ? Color{80, 130, 230, 245} : Color{30, 50, 110, 210};
     Color bdr = hov ? Color{160, 200, 255, 255} : Color{70, 100, 180, 200};
     m_renderer->oxDrawRectangle(x - 2, y - 2, w + 4, h + 4, bdr, 22, 0, 0, 0);

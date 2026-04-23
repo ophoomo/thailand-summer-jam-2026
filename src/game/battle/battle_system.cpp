@@ -408,6 +408,7 @@ void BattleSystem::playerPlayCard(int32_t hand_slot, entt::entity preferred_targ
         return;
 
     if (energy.current < fx->cost) {
+        this->m_audio->play_sfx("no_mana");
         LOG_TRACE("[BattleSystem] Not enough energy ({}/{}) for {}", energy.current, fx->cost,
                   fx->name);
         return;

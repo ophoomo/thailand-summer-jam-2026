@@ -9,9 +9,10 @@
 #include "game/gui/lunar_cycle_gui.h"
 #include "game/gui/timer_gui.h"
 #include "game/particles/background_particles.h"
-#include "renderer/renderer_interface.h"
 #include <entt/entt.hpp>
 #include <memory>
+#include <string>
+#include <unordered_set>
 #include <vector>
 
 class SceneGame : public Scene
@@ -84,6 +85,7 @@ class SceneGame : public Scene
     OverlayState m_overlay{OverlayState::NONE};
     float m_play_time{0.0f};
     int32_t m_level_reached{1};
+    std::string m_last_hovered_btn_id;
 };
 
 #endif /* B21E8FB9_EE83_4642_9675_594206EBD3B8 */
