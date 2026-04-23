@@ -110,6 +110,7 @@ class BattleSystem
     CombatContext m_ctx{};
     TurnManager m_turn;
     entt::entity m_player{entt::null};
+    entt::entity m_enemy_awaiting_action{entt::null};
     bool m_resolving_card{false};
 
     static constexpr float ENEMY_ACT_DELAY = 0.9f;
