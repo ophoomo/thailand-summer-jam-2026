@@ -4,7 +4,7 @@
 #include "renderer/ox_renderer.h"
 #include <memory>
 
-struct MainMenuParticle
+struct FireflyParticle
 {
     float x = 0, y = 0;
     float vx = 0, vy = 0;
@@ -25,7 +25,7 @@ struct MainMenuParticle
     bool active = false;
 };
 
-class MainMenuParticleEmitter
+class FireflyParticleEmitter
 {
   public:
     static constexpr int POOL_SIZE = 128;
@@ -37,12 +37,12 @@ class MainMenuParticleEmitter
     void clear();
 
   private:
-    MainMenuParticle *acquire();
+    FireflyParticle *acquire();
     void spawn(float screen_w, float bottom_y);
 
     static float frand(float lo, float hi);
 
-    std::array<MainMenuParticle, POOL_SIZE> m_pool{};
+    std::array<FireflyParticle, POOL_SIZE> m_pool{};
     float m_emit_timer = 0.0f;
 
     static constexpr float EMIT_INTERVAL = 0.05f; // ความถี่ spawn

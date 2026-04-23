@@ -2,7 +2,7 @@
 #define A5B90A96_0086_4800_B7AF_E0D6A36E3119
 
 #include "engine/core/scene.h"
-#include "game/particles/mainmenu_particles.h"
+#include "game/particles/firefly_particles.h"
 #include "renderer/renderer_interface.h"
 #include "scripting/script_manager.h"
 
@@ -28,7 +28,7 @@ class SceneMenu : public Scene
 
     std::unique_ptr<ScriptManager> m_lua;
     std::unique_ptr<UISystem> m_ui;
-    std::unique_ptr<MainMenuParticleEmitter> m_mainmenu_particle;
+    std::unique_ptr<FireflyParticleEmitter> m_mainmenu_particle;
 
     float m_mouse_x = 0;
     float m_mouse_y = 0;

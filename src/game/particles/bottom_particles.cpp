@@ -1,5 +1,5 @@
 
-#include "game/particles/background_particles.h"
+#include "game/particles/bottom_particles.h"
 
 static constexpr float PI = 3.14159265f;
 
@@ -7,12 +7,12 @@ static constexpr float PI = 3.14159265f;
 // Helpers
 // ============================================================
 
-float BackgroundParticleEmitter::frand(float lo, float hi)
+float BottomParticleEmitter::frand(float lo, float hi)
 {
     return lo + static_cast<float>(rand() % 10000) / 10000.0f * (hi - lo);
 }
 
-BGParticle *BackgroundParticleEmitter::acquire()
+BottomParticle *BottomParticleEmitter::acquire()
 {
     for (auto &p : m_pool)
         if (!p.active)
@@ -24,9 +24,9 @@ BGParticle *BackgroundParticleEmitter::acquire()
 // Spawn — from bottom, random X within width
 // ============================================================
 
-void BackgroundParticleEmitter::spawn(float screen_w, float bottom_y)
+void BottomParticleEmitter::spawn(float screen_w, float bottom_y)
 {
-    BGParticle *p = acquire();
+    BottomParticle *p = acquire();
     if (!p)
         return;
 
@@ -76,7 +76,7 @@ void BackgroundParticleEmitter::spawn(float screen_w, float bottom_y)
 // Update
 // ============================================================
 
-void BackgroundParticleEmitter::update(double dt, float screen_w, float bottom_y, bool emitting)
+void BottomParticleEmitter::update(double dt, float screen_w, float bottom_y, bool emitting)
 {
     float fdt = static_cast<float>(dt);
 
@@ -114,7 +114,7 @@ void BackgroundParticleEmitter::update(double dt, float screen_w, float bottom_y
 // Draw
 // ============================================================
 
-void BackgroundParticleEmitter::draw(std::shared_ptr<OxRenderer> renderer, int32_t base_layer) const
+void BottomParticleEmitter::draw(std::shared_ptr<OxRenderer> renderer, int32_t base_layer) const
 {
     for (const auto &p : m_pool) {
         if (!p.active)
@@ -143,7 +143,7 @@ void BackgroundParticleEmitter::draw(std::shared_ptr<OxRenderer> renderer, int32
 // Clear
 // ============================================================
 
-void BackgroundParticleEmitter::clear()
+void BottomParticleEmitter::clear()
 {
     for (auto &p : m_pool)
         p.active = false;

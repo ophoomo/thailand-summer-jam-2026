@@ -1,5 +1,5 @@
-#ifndef E68DB9F2_7227_40EE_AC74_2E7F046C1738
-#define E68DB9F2_7227_40EE_AC74_2E7F046C1738
+#ifndef ED494E1A_D74B_4D90_902F_9A094DB0EB80
+#define ED494E1A_D74B_4D90_902F_9A094DB0EB80
 
 #include "renderer/ox_renderer.h"
 #include <array>
@@ -7,9 +7,9 @@
 #include <memory>
 
 // ============================================================
-// BGParticle — floating background circle
+// HeaderParticle — floating background circle
 // ============================================================
-struct BGParticle
+struct HeaderParticle
 {
     float x = 0, y = 0;
     float vx = 0, vy = 0;
@@ -24,6 +24,9 @@ struct BGParticle
     float sway_speed = 0.0f;
     float sway_amp = 0.0f;
 
+    float flicker_phase;
+    float flicker_speed;
+
     uint8_t r = 120, g = 160, b = 255;
 
     int layer_offset = 0;
@@ -31,10 +34,10 @@ struct BGParticle
 };
 
 // ============================================================
-// BackgroundParticleEmitter
+// BottomParticleEmitter
 //   - spawn from bottom, float upward, fade out
 // ============================================================
-class BackgroundParticleEmitter
+class HeaderParticleEmitter
 {
   public:
     static constexpr int POOL_SIZE = 128;
@@ -46,15 +49,15 @@ class BackgroundParticleEmitter
     void clear();
 
   private:
-    BGParticle *acquire();
+    HeaderParticle *acquire();
     void spawn(float screen_w, float bottom_y);
 
     static float frand(float lo, float hi);
 
-    std::array<BGParticle, POOL_SIZE> m_pool{};
+    std::array<HeaderParticle, POOL_SIZE> m_pool{};
     float m_emit_timer = 0.0f;
 
-    static constexpr float EMIT_INTERVAL = 0.08f; // ความถี่ spawn
+    static constexpr float EMIT_INTERVAL = 0.0025f; // ความถี่ spawn
+    static constexpr int MAX_PARTICLES = 5;
 };
-
-#endif /* E68DB9F2_7227_40EE_AC74_2E7F046C1738 */
+#endif /* ED494E1A_D74B_4D90_902F_9A094DB0EB80 */

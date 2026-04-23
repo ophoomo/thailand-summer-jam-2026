@@ -1,5 +1,5 @@
 
-#include "game/particles/mainmenu_particles.h"
+#include "game/particles/firefly_particles.h"
 
 static constexpr float PI = 3.14159265f;
 
@@ -7,12 +7,12 @@ static constexpr float PI = 3.14159265f;
 // Helpers
 // ============================================================
 
-float MainMenuParticleEmitter::frand(float lo, float hi)
+float FireflyParticleEmitter::frand(float lo, float hi)
 {
     return lo + static_cast<float>(rand() % 10000) / 10000.0f * (hi - lo);
 }
 
-MainMenuParticle *MainMenuParticleEmitter::acquire()
+FireflyParticle *FireflyParticleEmitter::acquire()
 {
     int activeCount = 0;
 
@@ -35,9 +35,9 @@ MainMenuParticle *MainMenuParticleEmitter::acquire()
 // Spawn — from bottom, random X within width
 // ============================================================
 
-void MainMenuParticleEmitter::spawn(float screen_w, float screen_h)
+void FireflyParticleEmitter::spawn(float screen_w, float screen_h)
 {
-    MainMenuParticle *p = acquire();
+    FireflyParticle *p = acquire();
     if (!p)
         return;
 
@@ -57,40 +57,21 @@ void MainMenuParticleEmitter::spawn(float screen_w, float screen_h)
     p->sway_phase = frand(0.0f, PI * 2.0f);
     p->sway_speed = frand(0.5f, 2.0f);
 
-    if (rand() % 2 == 0) {
-        // Purple group
-        int t = rand() % 3;
+    // Blue group
+    int t = rand() % 3;
 
-        if (t == 0) {
-            p->r = 120;
-            p->g = 90;
-            p->b = 200;
-        } else if (t == 1) {
-            p->r = 180;
-            p->g = 140;
-            p->b = 255;
-        } else {
-            p->r = 90;
-            p->g = 60;
-            p->b = 160;
-        }
+    if (t == 0) {
+        p->r = 70;
+        p->g = 130;
+        p->b = 255;
+    } else if (t == 1) {
+        p->r = 10;
+        p->g = 40;
+        p->b = 120;
     } else {
-        // Yellow group
-        int t = rand() % 3;
-
-        if (t == 0) {
-            p->r = 255;
-            p->g = 220;
-            p->b = 140;
-        } else if (t == 1) {
-            p->r = 255;
-            p->g = 200;
-            p->b = 90;
-        } else {
-            p->r = 240;
-            p->g = 180;
-            p->b = 120;
-        }
+        p->r = 255;
+        p->g = 255;
+        p->b = 255;
     }
 
     p->layer_offset = (rand() % 2) ? 10 : 0;
@@ -102,7 +83,7 @@ void MainMenuParticleEmitter::spawn(float screen_w, float screen_h)
 // Update
 // ============================================================
 
-void MainMenuParticleEmitter::update(double dt, float screen_w, float screen_h, bool emitting)
+void FireflyParticleEmitter::update(double dt, float screen_w, float screen_h, bool emitting)
 {
     float fdt = static_cast<float>(dt);
 
@@ -161,7 +142,7 @@ void MainMenuParticleEmitter::update(double dt, float screen_w, float screen_h, 
 // Draw
 // ============================================================
 
-void MainMenuParticleEmitter::draw(std::shared_ptr<OxRenderer> renderer, int32_t base_layer) const
+void FireflyParticleEmitter::draw(std::shared_ptr<OxRenderer> renderer, int32_t base_layer) const
 {
     for (const auto &p : m_pool) {
         if (!p.active)
@@ -199,7 +180,7 @@ void MainMenuParticleEmitter::draw(std::shared_ptr<OxRenderer> renderer, int32_t
 // Clear
 // ============================================================
 
-void MainMenuParticleEmitter::clear()
+void FireflyParticleEmitter::clear()
 {
     for (auto &p : m_pool)
         p.active = false;

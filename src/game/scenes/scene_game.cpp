@@ -4,7 +4,7 @@
 #include "core/scene_manager.h"
 #include "engine/utils/logger.h"
 #include "game/cards/hand.h"
-#include "game/particles/background_particles.h"
+#include "game/particles/bottom_particles.h"
 #include "renderer/color.h"
 #include "renderer/text_effect.h"
 #include <SDL3/SDL_scancode.h>
@@ -32,7 +32,8 @@ void SceneGame::onEnter()
     this->m_player =
         std::make_unique<Player>(this->m_renderer, this->m_assets, this->m_audio, this->m_battle);
 
-    this->m_bg_particle = std::make_unique<BackgroundParticleEmitter>();
+    this->m_bottom_particle = std::make_unique<BottomParticleEmitter>();
+    this->m_header_particle = std::make_unique<HeaderParticleEmitter>();
 
     int w, h, c;
     auto pixel = this->m_assets->loadImage("assets/images/gameplay_bg.png", w, h, c);
@@ -336,7 +337,8 @@ void SceneGame::onUpdate(double deltaTime)
     }
     this->m_lunar_cycle_gui->onMana(this->m_battle.get());
     this->m_enemy_animator->onUpdate(deltaTime);
-    this->m_bg_particle->update(deltaTime, 1280, 720, true);
+    this->m_bottom_particle->update(deltaTime, 1280, 720, true);
+    this->m_header_particle->update(deltaTime, 1280, 720, true);
 
     this->m_mouse_clicked = false;
     this->m_right_clicked = false;
@@ -360,7 +362,8 @@ void SceneGame::onDraw()
     this->m_card_hand->onDraw();
     this->m_timer_gui->onDraw();
     this->m_lunar_cycle_gui->onDraw();
-    this->m_bg_particle->draw(this->m_renderer, 3);
+    this->m_bottom_particle->draw(this->m_renderer, 3);
+    this->m_header_particle->draw(this->m_renderer, 3);
     this->drawOverlay();
 }
 
