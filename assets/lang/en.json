@@ -41,5 +41,42 @@
     "ok": "OK",
     "cancel": "Cancel",
     "close": "Close"
+  },
+  "story": {
+    "line1": "On the far side of the universe,",
+    "line2": "a hidden temple exists",
+    "line3": "where star deities maintain",
+    "line4": "the balance of the cosmos.",
+
+    "line5": "Two sisters — the goddesses",
+    "line6": "of the sun and the moon —",
+    "line7": "govern day and night,",
+    "line8": "keeping the world in harmony.",
+
+    "line9": "But one day, the sun's power",
+    "line10": "began to overflow,",
+    "line11": "giving rise to a heatwave entity",
+    "line12": "that distorted the balance",
+    "line13": "of the universe.",
+
+    "line14": "The other gods, fearful,",
+    "line15": "retreated,",
+    "line16": "leaving Heliora",
+    "line17": "to face her uncontrollable power alone.",
+
+    "line18": "Amid the chaos, Selenia,",
+    "line19": "the moon goddess",
+    "line20": "who still believes in her sister,",
+    "line21": "sets out on a journey",
+    "line22": "back to the temple.",
+
+    "line23": "She must overcome",
+    "line24": "the blazing heat",
+    "line25": "to reach Heliora",
+    "line26": "before the sun’s power",
+    "line27": "consumes the world entirely.",
+
+    "hint": "Click to continue",
+    "skip": "Skip"
   }
 }
