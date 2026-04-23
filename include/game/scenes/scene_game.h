@@ -37,6 +37,7 @@ class SceneGame : public Scene
     void onKeyboard(const WindowKeyEvent &event);
     void onEnemyAttack(const battle::EvEnemyAttack &event);
     void onPlayerAttack(const battle::EvPlayerAttack &event);
+    void onDamageDealt(const battle::EvDamageDealt &event);
 
     void drawEnemies();
     void drawHUD();

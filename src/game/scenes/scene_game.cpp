@@ -9,6 +9,7 @@
 #include "renderer/text_effect.h"
 #include <SDL3/SDL_scancode.h>
 #include <cmath>
+#include <cstdlib>
 #include <format>
 #include <memory>
 #include <vector>
@@ -24,6 +25,7 @@ void SceneGame::onEnter()
     this->m_dispatcher->sink<WindowKeyEvent>().connect<&SceneGame::onKeyboard>(this);
     this->m_dispatcher->sink<battle::EvEnemyAttack>().connect<&SceneGame::onEnemyAttack>(this);
     this->m_dispatcher->sink<battle::EvPlayerAttack>().connect<&SceneGame::onPlayerAttack>(this);
+    this->m_dispatcher->sink<battle::EvDamageDealt>().connect<&SceneGame::onDamageDealt>(this);
 
     this->m_card_hand = std::make_unique<CardHand>(this->m_renderer, this->m_assets, this->m_audio);
     this->m_timer_gui = std::make_unique<TimerGUI>(this->m_renderer, this->m_assets, this->m_audio);
@@ -416,6 +418,7 @@ void SceneGame::onExit()
     this->m_dispatcher->sink<WindowKeyEvent>().disconnect(this);
     this->m_dispatcher->sink<battle::EvEnemyAttack>().disconnect(this);
     this->m_dispatcher->sink<battle::EvPlayerAttack>().disconnect(this);
+    this->m_dispatcher->sink<battle::EvDamageDealt>().disconnect(this);
     this->m_audio->stop_bgm();
     this->m_renderer->freeTexture("gameplay_bg");
     this->m_renderer->freeTexture("botoom_bar");
@@ -939,5 +942,16 @@ void SceneGame::onPlayerAttack(const battle::EvPlayerAttack &event)
     anim->frame = 0;
     anim->is_playing = true;
     anim->loop = true;
+}
+
+void SceneGame::onDamageDealt(const battle::EvDamageDealt &event)
+{
+    // Play damage sound if player was damaged
+    entt::entity player = this->m_battle->getPlayer();
+    if (event.target == player && event.actual_damage > 0) {
+        // Random position index for 3D sound effect: 0=left, 1=center, 2=right
+        int posIndex = std::rand() % 3;
+        this->m_player->onDamaged(posIndex);
+    }
 }
 
