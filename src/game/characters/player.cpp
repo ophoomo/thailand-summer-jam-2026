@@ -111,7 +111,7 @@ void Player::onDraw()
     float u0_flip, u1_flip, v0, v1;
     if (anim_name == "attack") {
         // Attack animation: row 1 (bottom half)
-        frame = frame % 4;
+        frame = frame % 6;
         u0_flip = (frame + 1) * 0.25f;
         u1_flip = frame * 0.25f;
         v0 = 0.5f;

@@ -535,21 +535,21 @@ void SceneGame::drawEnemies()
                     frame = anim->frame;
                 } else {
                     // Default idle animation: 4 frames across top row
-                    frame = static_cast<int>(this->m_enemy_anim_time / 0.1f) % 4;
+                    frame = static_cast<int>(this->m_enemy_anim_time / 0.1f) % 6;
                 }
 
                 // Draw sprite with current animation frame
                 float u0_flip, u1_flip, v0, v1;
                 if (anim_name == "attack") {
                     // Attack animation: row 1 (bottom half)
-                    frame = frame % 4;
+                    frame = frame % 6;
                     u0_flip = (frame + 1) * 0.25f;
                     u1_flip = frame * 0.25f;
                     v0 = 0.5f;
                     v1 = 1.0f;
                 } else {
                     // Idle animation: row 0 (top half)
-                    frame = frame % 4;
+                    frame = frame % 6;
                     u0_flip = (frame + 1) * 0.25f;
                     u1_flip = frame * 0.25f;
                     v0 = 0.0f;
