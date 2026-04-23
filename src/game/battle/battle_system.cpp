@@ -89,6 +89,7 @@ void BattleSystem::startBattle(int32_t level)
     m_reg.clear();
     m_ctx = {};
     m_player = entt::null;
+    m_enemy_awaiting_action = entt::null;
 
     setupPlayer();
 
@@ -275,6 +276,18 @@ void BattleSystem::phaseEnemyTurn(double /*dt*/)
     if (m_ctx.waiting_for_anim) {
         if (m_ctx.phase_timer >= ENEMY_ACT_DELAY) {
             m_ctx.waiting_for_anim = false;
+            // Now apply end-of-turn effects and advance turn index after animation plays
+            m_turn.endEnemyTurn(m_reg, m_ctx, m_enemy_awaiting_action);
+
+            // Pre-compute the next intent so the UI can display it before the next turn
+            if (m_enemy_awaiting_action != entt::null) {
+                const EnemyInfo *info = infoFor(m_enemy_awaiting_action);
+                if (info) {
+                    EnemyAI::resolveIntent(m_reg, m_enemy_awaiting_action, *info);
+                    m_dispatcher.enqueue<EvEnemyIntentChanged>({m_enemy_awaiting_action});
+                }
+            }
+            m_enemy_awaiting_action = entt::null;
             m_ctx.phase_timer = 0.0f;
         }
         return;
@@ -301,25 +314,10 @@ void BattleSystem::phaseEnemyTurn(double /*dt*/)
         }
     }
 
-    // Apply end-of-turn effects and advance turn index
-    m_turn.endEnemyTurn(m_reg, m_ctx, enemy);
-
-    // Pre-compute the next intent so the UI can display it before the next turn
-    if (enemy != entt::null) {
-        const EnemyInfo *info = infoFor(enemy);
-        if (info) {
-            EnemyAI::resolveIntent(m_reg, enemy, *info);
-            m_dispatcher.enqueue<EvEnemyIntentChanged>({enemy});
-        }
-    }
-
-    if (m_turn.hasMoreEnemies(m_ctx)) {
-        m_ctx.waiting_for_anim = true;
-        m_ctx.phase_timer = 0.0f;
-    } else {
-        m_turn.endEnemyTurns(m_reg);
-        transitionTo(CombatPhase::RESOLVE_DEATHS);
-    }
+    // Set delay to let enemy animation play before ending turn
+    m_ctx.waiting_for_anim = true;
+    m_enemy_awaiting_action = enemy;
+    m_ctx.phase_timer = 0.0f;
 }
 
 void BattleSystem::phaseResolveDeaths()
@@ -570,6 +568,7 @@ void BattleSystem::shutdown()
     m_reg.clear();
     m_ctx = {};
     m_player = entt::null;
+    m_enemy_awaiting_action = entt::null;
     LOG_TRACE("[BattleSystem] Shutdown");
 }
 
