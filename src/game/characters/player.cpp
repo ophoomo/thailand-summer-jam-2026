@@ -83,6 +83,21 @@ void Player::onDraw()
     entt::entity player = this->m_battle->getPlayer();
     auto *hp = reg.try_get<battle::HealthComp>(player);
     uint8_t hp_opacity = hp->ratio() * 255;
+
+    // ── Name ─────────────────────────────────────────────────────────────
+    std::string name = "Selenia";
+    float tw = this->m_renderer->measureText(name.c_str(), 12);
+    this->m_renderer->oxDrawText(this->x + (this->getWidth() / 2) - (tw / 2), this->y - 20,
+                                 name.c_str(), 12, Color::White(),
+                                 TextEffect::Outline(Color::Black()), 2);
+
+    // Block
+    if (auto *bl = reg.try_get<battle::BlockComp>(player); bl && bl->amount > 0) {
+        std::string t = std::format("BLK  {}", bl->amount);
+        this->m_renderer->oxDrawText(this->x, this->y - 40, t.c_str(), 11, {100, 180, 255, 255},
+                                     TextEffect::Outline(Color::Black()), 2);
+    }
+
     if (const AnimFrame *f = m_animator->currentFrame()) {
         m_renderer->oxDrawSpriteSheet(this->x, this->y, WIDTH_PLAYER, HEIGHT_PLAYER, "player",
                                       f->u0, f->v0, f->u1, f->v1, {255, 255, 255, hp_opacity});

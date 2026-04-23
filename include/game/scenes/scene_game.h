@@ -8,17 +8,20 @@
 #include "game/characters/player.h"
 #include "game/gui/lunar_cycle_gui.h"
 #include "game/gui/timer_gui.h"
-#include "renderer/renderer_interface.h"
+#include "game/particles/background_particles.h"
 #include <entt/entt.hpp>
 #include <memory>
+#include <string>
+#include <unordered_set>
 #include <vector>
 
 class SceneGame : public Scene
 {
   public:
     SceneGame(std::shared_ptr<entt::dispatcher> dispatcher, std::shared_ptr<OxRenderer> renderer,
-              std::shared_ptr<AssetsInterface> assets, std::shared_ptr<AudioInterface> audio)
-        : Scene(dispatcher, renderer, assets, audio)
+              std::shared_ptr<AssetsInterface> assets, std::shared_ptr<AudioInterface> audio,
+              std::shared_ptr<CursorUI> cursor)
+        : Scene(dispatcher, renderer, assets, audio, cursor)
     {
     }
     ~SceneGame() = default;
@@ -46,6 +49,7 @@ class SceneGame : public Scene
     std::unique_ptr<LunarCycleGUI> m_lunar_cycle_gui;
     std::shared_ptr<battle::BattleSystem> m_battle;
     std::unique_ptr<Animator> m_enemy_animator;
+    std::unique_ptr<BackgroundParticleEmitter> m_bg_particle;
 
     // ── Enemy render cache (populated in drawEnemies each frame) ──────────────
     struct EnemyRenderSlot
@@ -81,6 +85,7 @@ class SceneGame : public Scene
     OverlayState m_overlay{OverlayState::NONE};
     float m_play_time{0.0f};
     int32_t m_level_reached{1};
+    std::string m_last_hovered_btn_id;
 };
 
 #endif /* B21E8FB9_EE83_4642_9675_594206EBD3B8 */

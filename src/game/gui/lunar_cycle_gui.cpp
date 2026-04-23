@@ -67,11 +67,11 @@ void LunarCycleGUI::onDraw()
         if (index < 0)
             index = 0;
         std::string name_texture = std::format("lunar_clock_{}", index);
-        this->m_renderer->oxDrawSprite(20, 360, LUNAR_CYCLE_WIDTH, LUNAR_CYCLE_HEIGHT, name_texture,
-                                       Color::White(), 20);
+        this->m_renderer->oxDrawSprite(20, 400, LUNAR_CYCLE_WIDTH, LUNAR_CYCLE_HEIGHT, name_texture,
+                                       Color::White(), 4);
     }
-    this->m_renderer->oxDrawSprite(20, 360, LUNAR_CYCLE_WIDTH, LUNAR_CYCLE_HEIGHT, "lunar_compass",
-                                   Color::White(), 22, glm::radians(this->m_current_rotate));
+    this->m_renderer->oxDrawSprite(20, 400, LUNAR_CYCLE_WIDTH, LUNAR_CYCLE_HEIGHT, "lunar_compass",
+                                   Color::White(), 5, glm::radians(this->m_current_rotate));
 
     std::string t = std::format("{}/{}", this->m_mana, this->m_max_mana);
     this->m_renderer->oxDrawText(240, 680, t.c_str(), 30, Color::White(),

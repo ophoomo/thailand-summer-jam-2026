@@ -65,6 +65,7 @@ void SceneMenu::onUpdate(double deltaTime)
 
 void SceneMenu::onDraw()
 {
+    this->m_cursor->onDraw();
     this->m_renderer->oxDrawSprite(0, 0, 1280, 720, "menu_bg", {255, 255, 255, 100}, 0);
     this->m_ui->onDraw();
 }

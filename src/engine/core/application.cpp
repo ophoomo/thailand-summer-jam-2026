@@ -106,6 +106,7 @@ void Application::mainLoop()
 void Application::cleanup()
 {
     LOG_CORE_INFO("[Application] Cleanup successful");
+    this->m_audio->unload("click");
 }
 
 void Application::onEvent(const ApplicationEvent &event)

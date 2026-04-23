@@ -10,7 +10,7 @@ void SceneStory::onEnter()
     this->m_dispatcher->sink<WindowMouseEvent>().connect<&SceneStory::onMouse>(this);
 
     this->m_lua = std::make_unique<ScriptManager>();
-    this->m_ui  = std::make_unique<UISystem>(this->m_lua->State(), m_renderer);
+    this->m_ui = std::make_unique<UISystem>(this->m_lua->State(), m_renderer);
 
     this->m_lua->BindApp(this->m_dispatcher.get());
     this->m_lua->BindScene(this->m_dispatcher.get(), "story");
@@ -30,10 +30,10 @@ void SceneStory::onEnter()
 void SceneStory::onUpdate(double deltaTime)
 {
     MouseState ms;
-    ms.x       = m_mouse_x;
-    ms.y       = m_mouse_y;
+    ms.x = m_mouse_x;
+    ms.y = m_mouse_y;
     ms.clicked = m_mouse_clicked;
-    ms.held    = m_mouse_held;
+    ms.held = m_mouse_held;
 
     this->m_ui->onUpdate(ms);
     this->m_lua->CallWithFloat("on_update", float(deltaTime));

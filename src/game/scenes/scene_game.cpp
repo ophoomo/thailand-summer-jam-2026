@@ -4,6 +4,7 @@
 #include "core/scene_manager.h"
 #include "engine/utils/logger.h"
 #include "game/cards/hand.h"
+#include "game/particles/background_particles.h"
 #include "renderer/color.h"
 #include "renderer/text_effect.h"
 #include <SDL3/SDL_scancode.h>
@@ -30,6 +31,8 @@ void SceneGame::onEnter()
                                                               this->m_audio, this->m_battle);
     this->m_player =
         std::make_unique<Player>(this->m_renderer, this->m_assets, this->m_audio, this->m_battle);
+
+    this->m_bg_particle = std::make_unique<BackgroundParticleEmitter>();
 
     int w, h, c;
     auto pixel = this->m_assets->loadImage("assets/images/gameplay_bg.png", w, h, c);
@@ -74,9 +77,6 @@ void SceneGame::onEnter()
         this->m_assets->loadAudio("assets/audio/gameplay_bgm.ogg", channels, sample_rate, data);
     this->m_audio->load("gameplay", channels, sim, sample_rate, data);
 
-    sim = this->m_assets->loadAudio("assets/audio/click_sfx.ogg", channels, sample_rate, data);
-    this->m_audio->load("click", channels, sim, sample_rate, data);
-
     sim = this->m_assets->loadAudio("assets/audio/card/heal_sfx.ogg", channels, sample_rate, data);
     this->m_audio->load("heal", channels, sim, sample_rate, data);
 
@@ -89,6 +89,15 @@ void SceneGame::onEnter()
 
     sim = this->m_assets->loadAudio("assets/audio/card/skill_sfx.ogg", channels, sample_rate, data);
     this->m_audio->load("skill", channels, sim, sample_rate, data);
+
+    sim = this->m_assets->loadAudio("assets/audio/death_sfx.ogg", channels, sample_rate, data);
+    this->m_audio->load("death", channels, sim, sample_rate, data);
+
+    sim = this->m_assets->loadAudio("assets/audio/victory_sfx.ogg", channels, sample_rate, data);
+    this->m_audio->load("victory", channels, sim, sample_rate, data);
+
+    sim = this->m_assets->loadAudio("assets/audio/no_mana_sfx.ogg", channels, sample_rate, data);
+    this->m_audio->load("no_mana", channels, sim, sample_rate, data);
 
     this->m_audio->set_bgm_fade_gain(0);
     this->m_audio->fade_bgm(1.0f, 5.0f);
@@ -304,11 +313,15 @@ void SceneGame::onUpdate(double deltaTime)
                 if (ctx2.phase == battle::CombatPhase::DEFEAT) {
                     this->m_level_reached = ctx2.turn_number;
                     this->m_overlay = OverlayState::GAME_OVER;
+                    this->m_audio->play_sfx("death");
+                    this->m_audio->stop_bgm();
                 } else if (ctx2.phase == battle::CombatPhase::IDLE &&
                            this->m_prev_phase == battle::CombatPhase::VICTORY) {
                     // All levels cleared — final boss defeated
                     this->m_level_reached = ctx2.turn_number;
                     this->m_overlay = OverlayState::VICTORY;
+                    this->m_audio->play_sfx("victory");
+                    this->m_audio->stop_bgm();
                 }
             }
             this->m_prev_phase = ctx2.phase;
@@ -323,6 +336,7 @@ void SceneGame::onUpdate(double deltaTime)
     }
     this->m_lunar_cycle_gui->onMana(this->m_battle.get());
     this->m_enemy_animator->onUpdate(deltaTime);
+    this->m_bg_particle->update(deltaTime, 1280, 720, true);
 
     this->m_mouse_clicked = false;
     this->m_right_clicked = false;
@@ -332,6 +346,7 @@ void SceneGame::onUpdate(double deltaTime)
 
 void SceneGame::onDraw()
 {
+    this->m_cursor->onDraw();
     this->m_renderer->oxDrawSprite(0, 0, 1280, 720, "gameplay_bg", {255, 255, 255, 100});
     this->m_renderer->oxDrawSprite(0, 0, 1280, 720, "bottom_bar", {255, 255, 255, 255}, 2);
     this->m_player->onDraw();
@@ -345,6 +360,7 @@ void SceneGame::onDraw()
     this->m_card_hand->onDraw();
     this->m_timer_gui->onDraw();
     this->m_lunar_cycle_gui->onDraw();
+    this->m_bg_particle->draw(this->m_renderer, 3);
     this->drawOverlay();
 }
 
@@ -363,12 +379,15 @@ void SceneGame::onExit()
     this->m_renderer->freeTexture("boss");
 
     this->m_audio->unload("gameplay_bg");
-    this->m_audio->unload("click");
+    this->m_audio->unload("no_mana");
 
     this->m_audio->unload("heal");
     this->m_audio->unload("block");
     this->m_audio->unload("skill");
     this->m_audio->unload("debuff");
+
+    this->m_audio->unload("death");
+    this->m_audio->unload("victory");
 
     if (this->m_battle) {
         this->m_battle->shutdown();
@@ -515,7 +534,7 @@ void SceneGame::drawEnemies()
                         this->m_renderer->oxDrawRectangle(ex, bar_y, fill, 10.0f,
                                                           {220, 50, 50, 255}, 3);
                     std::string t = std::format("{}/{}", hp->current, hp->max);
-                    this->m_renderer->oxDrawText(ex, bar_y + 13.0f, t.c_str(), 11, Color::White(),
+                    this->m_renderer->oxDrawText(ex, bar_y + 22.0f, t.c_str(), 11, Color::White(),
                                                  TextEffect::Outline(Color::Black()), 4);
                 }
 
@@ -617,13 +636,6 @@ void SceneGame::drawHUD()
     if (player != entt::null) {
         constexpr float HX = 24.0f;
 
-        // Block
-        if (auto *bl = reg.try_get<battle::BlockComp>(player); bl && bl->amount > 0) {
-            std::string t = std::format("BLK  {}", bl->amount);
-            this->m_renderer->oxDrawText(HX, 682.0f, t.c_str(), 13, {100, 180, 255, 255},
-                                         TextEffect::Outline(Color::Black()), 3);
-        }
-
         // Level
         if (auto *lvl = reg.try_get<battle::LevelComp>(player)) {
             std::string t = std::format("Level {}", lvl->current);
@@ -719,6 +731,13 @@ static std::string fmtTime(float secs)
 bool SceneGame::overlayBtn(const char *text, float x, float y, float w, float h)
 {
     bool hov = m_mouse_x >= x && m_mouse_x <= x + w && m_mouse_y >= y && m_mouse_y <= y + h;
+    if (hov) {
+        if (m_last_hovered_btn_id != text) {
+            m_audio->play_sfx("click");
+            m_last_hovered_btn_id = text;
+        }
+    }
+
     Color bg = hov ? Color{80, 130, 230, 245} : Color{30, 50, 110, 210};
     Color bdr = hov ? Color{160, 200, 255, 255} : Color{70, 100, 180, 200};
     m_renderer->oxDrawRectangle(x - 2, y - 2, w + 4, h + 4, bdr, 22, 0, 0, 0);
