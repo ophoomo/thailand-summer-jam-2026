@@ -109,7 +109,6 @@ function on_enter()
         w           = BTN_W,
         h           = BTN_H,
         text        = tr("menu.quit"),
-        font_size   = 20,
         layer       = 1,
 
         color       = { r = 51, g = 20, b = 20, a = 235 },

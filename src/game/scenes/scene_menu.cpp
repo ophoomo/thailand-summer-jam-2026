@@ -2,7 +2,9 @@
 #include "game/scenes/scene_menu.h"
 #include "core/window.h"
 #include "engine/utils/logger.h"
+#include "game/particles/mainmenu_particles.h"
 #include "scripting/script_manager.h"
+#include <memory>
 
 // ============================================================
 // Public Methods
@@ -17,6 +19,7 @@ void SceneMenu::onEnter()
 
     this->m_lua = std::make_unique<ScriptManager>();
     this->m_ui = std::make_unique<UISystem>(this->m_lua->State(), m_renderer);
+    this->m_mainmenu_particle = std::make_unique<MainMenuParticleEmitter>();
 
     this->m_lua->BindApp(this->m_dispatcher.get());
     this->m_lua->BindScene(this->m_dispatcher.get(), "menu");
@@ -61,6 +64,7 @@ void SceneMenu::onUpdate(double deltaTime)
     this->m_ui->onUpdate(ms);
 
     this->m_mouse_clicked = false;
+    this->m_mainmenu_particle->update(deltaTime, 1280, 720, true);
 }
 
 void SceneMenu::onDraw()
@@ -68,6 +72,7 @@ void SceneMenu::onDraw()
     this->m_cursor->onDraw();
     this->m_renderer->oxDrawSprite(0, 0, 1280, 720, "menu_bg", {255, 255, 255, 100}, 0);
     this->m_ui->onDraw();
+    this->m_mainmenu_particle->draw(this->m_renderer, 1);
 }
 
 void SceneMenu::onExit()

@@ -1,15 +1,10 @@
-#ifndef E68DB9F2_7227_40EE_AC74_2E7F046C1738
-#define E68DB9F2_7227_40EE_AC74_2E7F046C1738
+#ifndef C26556A7_847B_4BF4_A398_40AC8C5226EA
+#define C26556A7_847B_4BF4_A398_40AC8C5226EA
 
 #include "renderer/ox_renderer.h"
-#include <array>
-#include <cstdint>
 #include <memory>
 
-// ============================================================
-// BGParticle — floating background circle
-// ============================================================
-struct BGParticle
+struct MainMenuParticle
 {
     float x = 0, y = 0;
     float vx = 0, vy = 0;
@@ -30,11 +25,7 @@ struct BGParticle
     bool active = false;
 };
 
-// ============================================================
-// BackgroundParticleEmitter
-//   - spawn from bottom, float upward, fade out
-// ============================================================
-class BackgroundParticleEmitter
+class MainMenuParticleEmitter
 {
   public:
     static constexpr int POOL_SIZE = 128;
@@ -46,15 +37,16 @@ class BackgroundParticleEmitter
     void clear();
 
   private:
-    BGParticle *acquire();
+    MainMenuParticle *acquire();
     void spawn(float screen_w, float bottom_y);
 
     static float frand(float lo, float hi);
 
-    std::array<BGParticle, POOL_SIZE> m_pool{};
+    std::array<MainMenuParticle, POOL_SIZE> m_pool{};
     float m_emit_timer = 0.0f;
 
-    static constexpr float EMIT_INTERVAL = 0.08f; // ความถี่ spawn
+    static constexpr float EMIT_INTERVAL = 0.05f; // ความถี่ spawn
+    static constexpr int MAX_PARTICLES = 30;
 };
 
-#endif /* E68DB9F2_7227_40EE_AC74_2E7F046C1738 */
+#endif /* C26556A7_847B_4BF4_A398_40AC8C5226EA */

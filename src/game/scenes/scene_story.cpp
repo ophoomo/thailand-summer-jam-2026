@@ -42,6 +42,7 @@ void SceneStory::onUpdate(double deltaTime)
 
 void SceneStory::onDraw()
 {
+    this->m_cursor->onDraw();
     this->m_renderer->oxDrawRectangle(0, 0, 1280, 720, {0, 0, 0, 255});
     this->m_ui->onDraw();
 }
