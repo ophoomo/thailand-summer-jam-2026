@@ -8,6 +8,7 @@
 #include "game/characters/player.h"
 #include "game/gui/lunar_cycle_gui.h"
 #include "game/gui/timer_gui.h"
+#include "game/particles/background_particles.h"
 #include "renderer/renderer_interface.h"
 #include <entt/entt.hpp>
 #include <memory>
@@ -46,6 +47,7 @@ class SceneGame : public Scene
     std::unique_ptr<LunarCycleGUI> m_lunar_cycle_gui;
     std::shared_ptr<battle::BattleSystem> m_battle;
     std::unique_ptr<Animator> m_enemy_animator;
+    std::unique_ptr<BackgroundParticleEmitter> m_bg_particle;
 
     // ── Enemy render cache (populated in drawEnemies each frame) ──────────────
     struct EnemyRenderSlot

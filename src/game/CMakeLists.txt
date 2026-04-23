@@ -10,6 +10,7 @@ file(GLOB_RECURSE GAME_SOURCES
     battle/*.cpp
     cards/*.cpp
     characters/*.cpp
+    particles/*.cpp
     gui/*.cpp
 )
 
