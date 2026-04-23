@@ -5,6 +5,7 @@
 #include "game/scenes/scene_menu.h"
 #include "game/scenes/scene_setting.h"
 #include "game/scenes/scene_splash.h"
+#include "game/scenes/scene_story.h"
 #include <engine/core/application.h>
 #include <engine/utils/logger.h>
 #include <exception>
@@ -32,6 +33,8 @@ int main()
             app->getDispatcher(), app->getRenderer(), app->getAssets(), app->getAudio());
         std::shared_ptr<SceneLanguage> scene_lang = std::make_shared<SceneLanguage>(
             app->getDispatcher(), app->getRenderer(), app->getAssets(), app->getAudio());
+        std::shared_ptr<SceneStory> scene_story = std::make_shared<SceneStory>(
+            app->getDispatcher(), app->getRenderer(), app->getAssets(), app->getAudio());
 
         // Add Scene into Scene Manager
         app->getScene()->addScene(scene_splash, "splash");
@@ -40,9 +43,10 @@ int main()
         app->getScene()->addScene(scene_credit, "credit");
         app->getScene()->addScene(scene_game, "gameplay");
         app->getScene()->addScene(scene_lang, "lang");
+        app->getScene()->addScene(scene_story, "story");
 
         // Set First Scene
-        app->getScene()->change("menu");
+        app->getScene()->change("splash");
 
         app->run();
     } catch (const std::exception &e) {

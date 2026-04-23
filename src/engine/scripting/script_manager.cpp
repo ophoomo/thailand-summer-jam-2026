@@ -533,6 +533,38 @@ static int lua_lang_toggle(lua_State *L)
     return 1;
 }
 
+static int lua_ui_set_color(lua_State *L)
+{
+    const char *id = luaL_checkstring(L, 1);
+    luaL_checktype(L, 2, LUA_TTABLE);
+    auto *ui = Ctx(L)->ui;
+    if (!ui) return 0;
+    auto *w = ui->Find(id);
+    if (!w) return 0;
+    int idx = 2;
+    w->color.r = (uint8_t)TblInt(L, idx, "r", w->color.r);
+    w->color.g = (uint8_t)TblInt(L, idx, "g", w->color.g);
+    w->color.b = (uint8_t)TblInt(L, idx, "b", w->color.b);
+    w->color.a = (uint8_t)TblInt(L, idx, "a", w->color.a);
+    return 0;
+}
+
+static int lua_ui_set_text_color(lua_State *L)
+{
+    const char *id = luaL_checkstring(L, 1);
+    luaL_checktype(L, 2, LUA_TTABLE);
+    auto *ui = Ctx(L)->ui;
+    if (!ui) return 0;
+    auto *w = ui->Find(id);
+    if (!w) return 0;
+    int idx = 2;
+    w->text_color.r = (uint8_t)TblInt(L, idx, "r", w->text_color.r);
+    w->text_color.g = (uint8_t)TblInt(L, idx, "g", w->text_color.g);
+    w->text_color.b = (uint8_t)TblInt(L, idx, "b", w->text_color.b);
+    w->text_color.a = (uint8_t)TblInt(L, idx, "a", w->text_color.a);
+    return 0;
+}
+
 // ============================================================
 // Helper: register a table of {name → C function} as a Lua global,
 // all sharing the same LuaCtx upvalue.
@@ -614,6 +646,8 @@ void ScriptManager::BindUI(UISystem *ui)
                                    {"set_text", lua_ui_set_text},
                                    {"set_enabled", lua_ui_set_enabled},
                                    {"set_text_effect", lua_ui_set_text_effect},
+                                   {"set_color",       lua_ui_set_color},
+                                   {"set_text_color",  lua_ui_set_text_color},
                                    {nullptr, nullptr}};
     RegisterTable(m_L, ctx, "UI", fns);
 }
