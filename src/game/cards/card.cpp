@@ -5,6 +5,7 @@
 #include "utils/logger.h"
 #include <sstream>
 #include <vector>
+#include "core/localization.h"
 
 // ============================================================
 // Construction / destruction
@@ -46,6 +47,15 @@ void Card::onUpdate(double dt)
 void Card::onDraw()
 {
     int32_t base_layer = is_selected ? 8 : 7;
+
+    const std::string display_name = !m_info.name_key.empty()
+        ? Localization::get(m_info.name_key)
+        : m_info.name;
+
+    const std::string display_detail = !m_info.desc_key.empty()
+        ? Localization::get(m_info.desc_key)
+        : m_info.detail;
+
 
     // Lingering explosion particles are drawn even after the sprite disappears
     m_particles.draw(m_renderer, 1, base_layer + 2);
@@ -102,32 +112,30 @@ void Card::onDraw()
         TextEffect name_fx = is_selected ? TextEffect::Glow(Color{120, 190, 255, 255}, 0.35f, 1.8f)
                                          : TextEffect::Outline(Color{10, 20, 60, 220});
         {
-            float ntw = m_renderer->measureText(m_info.name.c_str(), 12);
+            float ntw = m_renderer->measureText(display_name.c_str(), 12);
             m_renderer->oxDrawText(text_cx - ntw * 0.5f, draw_y + 135.0f * m_scale,
-                                   m_info.name.c_str(), 12, name_col, name_fx, base_layer + 1);
+                                   display_name.c_str(), 12, name_col, name_fx, base_layer + 1);
         }
 
         // ── Description with word-wrap (left-aligned, size 11)
-        if (!m_info.detail.empty()) {
+        if (!display_detail.empty()) {
             const float desc_sz = 11.0f;
-            const float line_h = m_renderer->fontMetrics().lineHeight * desc_sz;
+            const float line_h  = m_renderer->fontMetrics().lineHeight * desc_sz;
 
             std::vector<std::string> lines;
             std::string cur;
-            std::istringstream ss(m_info.detail);
+            std::istringstream ss(display_detail);
             std::string word;
             while (ss >> word) {
                 std::string test = cur.empty() ? word : cur + " " + word;
                 if (m_renderer->measureText(test.c_str(), desc_sz) <= text_max_w)
                     cur = test;
                 else {
-                    if (!cur.empty())
-                        lines.push_back(cur);
+                    if (!cur.empty()) lines.push_back(cur);
                     cur = word;
                 }
             }
-            if (!cur.empty())
-                lines.push_back(cur);
+            if (!cur.empty()) lines.push_back(cur);
 
             for (int li = 0; li < static_cast<int>(lines.size()); li++) {
                 float ly = draw_y + (160.0f + li * line_h) * m_scale;

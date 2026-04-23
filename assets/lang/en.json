@@ -78,5 +78,39 @@
 
     "hint": "Click to continue",
     "skip": "Skip"
+  },
+  "card": {
+    "moonlight_strike": {
+      "name": "Moonlight Strike",
+      "desc": "Deal 6 damage to an enemy."
+    },
+    "shield_bash": {
+      "name": "Shield Bash",
+      "desc": "Gain 4 Block. Deal 3 damage."
+    },
+    "lunar_heal": {
+      "name": "Lunar Heal",
+      "desc": "Restore 8 HP."
+    },
+    "shadow_step": {
+      "name": "Shadow Step",
+      "desc": "Gain 6 Block. Apply 1 Weak to enemy."
+    },
+    "cleave": {
+      "name": "Cleave",
+      "desc": "Deal 12 damage to an enemy."
+    },
+    "iron_wall": {
+      "name": "Iron Wall",
+      "desc": "Gain 8 Block."
+    },
+    "war_cry": {
+      "name": "War Cry",
+      "desc": "Gain 3 Strength this combat."
+    },
+    "bash": {
+      "name": "Bash",
+      "desc": "Deal 8 damage. Apply 1 Vulnerable."
+    }
   }
 }

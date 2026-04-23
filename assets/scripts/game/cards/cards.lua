@@ -5,6 +5,8 @@ return {
     -- 0
     {
         id          = "moonlight_strike",
+        name_key    = "card.moonlight_strike.name",
+        desc_key    = "card.moonlight_strike.desc",
         name        = "Moonlight Strike",
         inner       = "skill_inner",
         description = "Deal 6 damage to an enemy.",
@@ -16,6 +18,8 @@ return {
     -- 1
     {
         id          = "shield_bash",
+        name_key    = "card.shield_bash.name",
+        desc_key    = "card.shield_bash.desc",
         name        = "Shield Bash",
         inner       = "skill_inner",
         description = "Gain 4 Block. Deal 3 damage.",
@@ -28,6 +32,8 @@ return {
     -- 2
     {
         id          = "lunar_heal",
+        name_key    = "card.lunar_heal.name",
+        desc_key    = "card.lunar_heal.desc",
         name        = "Lunar Heal",
         inner       = "skill_inner",
         description = "Restore 8 HP.",
@@ -39,6 +45,8 @@ return {
     -- 3
     {
         id          = "shadow_step",
+        name_key    = "card.shadow_step.name",
+        desc_key    = "card.shadow_step.desc",
         name        = "Shadow Step",
         inner       = "skill_inner",
         description = "Gain 6 Block. Apply 1 Weak to enemy.",
@@ -51,6 +59,8 @@ return {
     -- 4
     {
         id          = "cleave",
+        name_key    = "card.cleave.name",
+        desc_key    = "card.cleave.desc",
         name        = "Cleave",
         inner       = "skill_inner",
         description = "Deal 12 damage to an enemy.",
@@ -62,6 +72,8 @@ return {
     -- 5
     {
         id          = "iron_wall",
+        name_key    = "card.iron_wall.name",
+        desc_key    = "card.iron_wall.desc",
         name        = "Iron Wall",
         inner       = "skill_inner",
         description = "Gain 8 Block.",
@@ -73,6 +85,8 @@ return {
     -- 6
     {
         id             = "war_cry",
+        name_key       = "card.war_cry.name",
+        desc_key       = "card.war_cry.desc",
         name           = "War Cry",
         inner          = "skill_inner",
         description    = "Gain 3 Strength this combat.",
@@ -85,6 +99,8 @@ return {
     -- 7
     {
         id               = "bash",
+        name_key         = "card.bash.name",
+        desc_key         = "card.bash.desc",
         name             = "Bash",
         inner            = "skill_inner",
         description      = "Deal 8 damage. Apply 1 Vulnerable.",

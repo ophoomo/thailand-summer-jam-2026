@@ -84,8 +84,10 @@ void CardDatabase::load(const std::string &path, std::shared_ptr<AssetsInterface
             CardInfo info;
             info.id = static_cast<int>(m_cards.size());
             info.lua_id = getStringField(L, "id");
+            info.name_key = getStringField(L, "name_key");
             info.name = getStringField(L, "name");
             info.inner = getStringField(L, "inner");
+            info.desc_key = getStringField(L, "desc_key");
             info.detail = getStringField(L, "description");
             info.type = getStringField(L, "type");
             info.cost = static_cast<uint8_t>(getIntField(L, "cost"));

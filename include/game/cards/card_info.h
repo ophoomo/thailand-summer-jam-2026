@@ -9,8 +9,10 @@ struct CardInfo
     int id = 0;
     std::string lua_id; // matches the "id" key in the Lua manifest
     std::string name;
+    std::string name_key;
     std::string inner;
     std::string detail;
+    std::string desc_key;
     std::string type; // "attack" | "skill" | "power"
     uint8_t cost = 0;
     bool show = true;
