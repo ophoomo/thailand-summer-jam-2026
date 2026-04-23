@@ -11,29 +11,26 @@ void SceneLanguage::onEnter()
     this->m_dispatcher->sink<WindowMouseEvent>().connect<&SceneLanguage::onMouse>(this);
 
     m_lua = std::make_unique<ScriptManager>();
-    m_ui  = std::make_unique<UISystem>(m_lua->State(), m_renderer);
+    m_ui = std::make_unique<UISystem>(m_lua->State(), m_renderer);
 
     m_ui->AddPanel("bg", {0, 0, 1280, 720}, Color::Black(), 0);
 
-    m_ui->AddLabel("title", {0, 200, 1280, 80},
-                   "Select Language", 48.0f, Color::White(), 1);
+    m_ui->AddLabel("title", {0, 200, 1280, 80}, "Select Language", 48.0f, Color::White(), 1);
 
-    m_ui->AddButton("btn_en", {BTN_EN_X, BTN_Y, BTN_W, BTN_H},
-                    "English", 32.0f, -1,
+    m_ui->AddButton("btn_en", {BTN_EN_X, BTN_Y, BTN_W, BTN_H}, "English", 32.0f, -1,
                     Color(50, 100, 200, 255), 1);
 
-    m_ui->AddButton("btn_th", {BTN_TH_X, BTN_Y, BTN_W, BTN_H},
-                    "ภาษาไทย", 32.0f, -1,
+    m_ui->AddButton("btn_th", {BTN_TH_X, BTN_Y, BTN_W, BTN_H}, "ภาษาไทย", 32.0f, -1,
                     Color(40, 160, 80, 255), 1);
 }
 
 void SceneLanguage::onUpdate(double deltaTime)
 {
     MouseState ms;
-    ms.x       = m_mouse_x;
-    ms.y       = m_mouse_y;
+    ms.x = m_mouse_x;
+    ms.y = m_mouse_y;
     ms.clicked = m_mouse_clicked;
-    ms.held    = m_mouse_held;
+    ms.held = m_mouse_held;
     m_ui->onUpdate(ms);
 
     if (m_mouse_clicked) {
@@ -51,6 +48,7 @@ void SceneLanguage::onUpdate(double deltaTime)
 
 void SceneLanguage::onDraw()
 {
+    this->m_cursor->onDraw();
     m_ui->onDraw();
 }
 
@@ -67,7 +65,8 @@ void SceneLanguage::onMouse(const WindowMouseEvent &event)
     m_mouse_x = float(event.mouseX);
     m_mouse_y = float(event.mouseY);
     if (event.click) {
-        if (!m_mouse_held) m_mouse_clicked = true;
+        if (!m_mouse_held)
+            m_mouse_clicked = true;
         m_mouse_held = true;
     } else {
         m_mouse_held = false;

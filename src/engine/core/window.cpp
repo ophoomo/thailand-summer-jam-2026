@@ -1,4 +1,3 @@
-#include <stdexcept>
 #include "core/window.h"
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_init.h"
@@ -8,6 +7,7 @@
 #include "SDL3/SDL_vulkan.h"
 #include "imgui_impl_sdl3.h"
 #include "utils/logger.h"
+#include <stdexcept>
 
 // ============================================================
 // Construction / destruction
@@ -52,6 +52,7 @@ Window::Window(const int width, const int height, const std::string &title,
 
     this->m_event = std::make_unique<SDL_Event>();
 
+    SDL_HideCursor();
     SDL_SetWindowPosition(this->m_window.get(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
     SDL_ShowWindow(this->m_window.get());
 }

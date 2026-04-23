@@ -346,6 +346,7 @@ void SceneGame::onUpdate(double deltaTime)
 
 void SceneGame::onDraw()
 {
+    this->m_cursor->onDraw();
     this->m_renderer->oxDrawSprite(0, 0, 1280, 720, "gameplay_bg", {255, 255, 255, 100});
     this->m_renderer->oxDrawSprite(0, 0, 1280, 720, "bottom_bar", {255, 255, 255, 255}, 2);
     this->m_player->onDraw();
@@ -533,7 +534,7 @@ void SceneGame::drawEnemies()
                         this->m_renderer->oxDrawRectangle(ex, bar_y, fill, 10.0f,
                                                           {220, 50, 50, 255}, 3);
                     std::string t = std::format("{}/{}", hp->current, hp->max);
-                    this->m_renderer->oxDrawText(ex, bar_y + 13.0f, t.c_str(), 11, Color::White(),
+                    this->m_renderer->oxDrawText(ex, bar_y + 22.0f, t.c_str(), 11, Color::White(),
                                                  TextEffect::Outline(Color::Black()), 4);
                 }
 

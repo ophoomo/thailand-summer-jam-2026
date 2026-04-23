@@ -9,8 +9,9 @@ class SceneMenu : public Scene
 {
   public:
     SceneMenu(std::shared_ptr<entt::dispatcher> dispatcher, std::shared_ptr<OxRenderer> renderer,
-              std::shared_ptr<AssetsInterface> assets, std::shared_ptr<AudioInterface> audio)
-        : Scene(dispatcher, renderer, assets, audio)
+              std::shared_ptr<AssetsInterface> assets, std::shared_ptr<AudioInterface> audio,
+              std::shared_ptr<CursorUI> cursor)
+        : Scene(dispatcher, renderer, assets, audio, cursor)
     {
     }
     ~SceneMenu() = default;
