@@ -349,7 +349,7 @@ void SceneGame::onUpdate(double deltaTime)
 void SceneGame::onDraw()
 {
     this->m_cursor->onDraw();
-    this->m_renderer->oxDrawSprite(0, 0, 1280, 720, "gameplay_bg", {255, 255, 255, 100});
+    this->m_renderer->oxDrawSprite(0, 0, 1280, 720, "gameplay_bg", {255, 255, 255, 255});
     this->m_renderer->oxDrawSprite(0, 0, 1280, 720, "bottom_bar", {255, 255, 255, 255}, 2);
     this->m_player->onDraw();
 
