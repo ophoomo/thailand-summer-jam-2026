@@ -26,6 +26,8 @@ void SceneGame::onEnter()
     this->m_dispatcher->sink<battle::EvEnemyAttack>().connect<&SceneGame::onEnemyAttack>(this);
     this->m_dispatcher->sink<battle::EvPlayerAttack>().connect<&SceneGame::onPlayerAttack>(this);
     this->m_dispatcher->sink<battle::EvDamageDealt>().connect<&SceneGame::onDamageDealt>(this);
+    this->m_dispatcher->sink<battle::EvEnemySpawned>().connect<&SceneGame::onEnemySpawned>(this);
+    this->m_dispatcher->sink<battle::EvEnemyDied>().connect<&SceneGame::onEnemyDied>(this);
 
     this->m_card_hand = std::make_unique<CardHand>(this->m_renderer, this->m_assets, this->m_audio);
     this->m_timer_gui = std::make_unique<TimerGUI>(this->m_renderer, this->m_assets, this->m_audio);
@@ -139,11 +141,19 @@ void SceneGame::onUpdate(double deltaTime)
                 // Simple frame update: 0.1 seconds per frame
                 anim.frame = static_cast<int32_t>(anim.elapsed / 0.1f);
                 
-                // Check if attack animation is complete (4 frames at 0.1s each = 0.4s)
-                if (anim.current_anim == "attack" && anim.elapsed >= 0.4f) {
-                    anim.current_anim = "idle";
-                    anim.elapsed = 0.0f;
-                    anim.frame = 0;
+                // Check animation completion based on type (4 frames at 0.1s each = 0.4s)
+                if (anim.elapsed >= 0.4f) {
+                    if (anim.current_anim == "attack") {
+                        // Attack animation loops back to idle
+                        anim.current_anim = "idle";
+                        anim.elapsed = 0.0f;
+                        anim.frame = 0;
+                    } else if (anim.current_anim == "enter" || anim.current_anim == "die") {
+                        // Enter/die animations are non-looping, just stop
+                        anim.is_playing = false;
+                        anim.elapsed = 0.4f;  // Keep at last frame
+                        anim.frame = 3;  // Last frame
+                    }
                 }
             }
         }
@@ -419,6 +429,8 @@ void SceneGame::onExit()
     this->m_dispatcher->sink<battle::EvEnemyAttack>().disconnect(this);
     this->m_dispatcher->sink<battle::EvPlayerAttack>().disconnect(this);
     this->m_dispatcher->sink<battle::EvDamageDealt>().disconnect(this);
+    this->m_dispatcher->sink<battle::EvEnemySpawned>().disconnect(this);
+    this->m_dispatcher->sink<battle::EvEnemyDied>().disconnect(this);
     this->m_audio->stop_bgm();
     this->m_renderer->freeTexture("gameplay_bg");
     this->m_renderer->freeTexture("botoom_bar");
@@ -529,10 +541,20 @@ void SceneGame::drawEnemies()
                 // ── Determine animation frame to draw ────────────────────────────────
                 int frame = 0;
                 std::string anim_name = "idle";
+                float alpha_mult = 1.0f;  // for fade-in/fade-out effects
                 
                 if (auto *anim = reg.try_get<battle::AnimComp>(e)) {
                     anim_name = anim->current_anim;
                     frame = anim->frame;
+                    
+                    // Fade in during enter animation
+                    if (anim_name == "enter") {
+                        alpha_mult = anim->elapsed / 0.4f;  // fade in over 0.4s
+                    }
+                    // Fade out during die animation
+                    else if (anim_name == "die") {
+                        alpha_mult = 1.0f - (anim->elapsed / 0.4f);  // fade out over 0.4s
+                    }
                 } else {
                     // Default idle animation: 4 frames across top row
                     frame = static_cast<int>(this->m_enemy_anim_time / 0.1f) % 4;
@@ -547,6 +569,13 @@ void SceneGame::drawEnemies()
                     u1_flip = frame * 0.25f;
                     v0 = 0.5f;
                     v1 = 1.0f;
+                } else if (anim_name == "enter" || anim_name == "die") {
+                    // Enter/die animations also use idle frames (top row) but with alpha fade
+                    frame = frame % 4;
+                    u0_flip = (frame + 1) * 0.25f;
+                    u1_flip = frame * 0.25f;
+                    v0 = 0.0f;
+                    v1 = 0.5f;
                 } else {
                     // Idle animation: row 0 (top half)
                     frame = frame % 4;
@@ -556,9 +585,10 @@ void SceneGame::drawEnemies()
                     v1 = 0.5f;
                 }
 
+                uint8_t alpha = static_cast<uint8_t>(255 * alpha_mult);
                 m_renderer->oxDrawSpriteSheet(ex, ey, sprite->width, sprite->height,
                                               sprite->texture_id, u0_flip, v0, u1_flip, v1,
-                                              {255, 255, 255, 255});
+                                              {255, 255, 255, alpha});
 
                 // ── Name ─────────────────────────────────────────────────────────────
                 if (auto *nm = reg.try_get<battle::NameComp>(e)) {
@@ -924,7 +954,7 @@ void SceneGame::onKeyboard(const WindowKeyEvent &event)
 void SceneGame::onEnemyAttack(const battle::EvEnemyAttack &event)
 {
     auto &reg = this->m_battle->getRegistry();
-    auto anim = reg.try_get_or_emplace<battle::AnimComp>(event.enemy);
+    auto anim = reg.get_or_emplace<battle::AnimComp>(event.enemy);
     anim->current_anim = "attack";
     anim->elapsed = 0.0f;
     anim->frame = 0;
@@ -936,7 +966,7 @@ void SceneGame::onPlayerAttack(const battle::EvPlayerAttack &event)
 {
     entt::entity player = this->m_battle->getPlayer();
     auto &reg = this->m_battle->getRegistry();
-    auto anim = reg.try_get_or_emplace<battle::AnimComp>(player);
+    auto anim = reg.get_or_emplace<battle::AnimComp>(player);
     anim->current_anim = "attack";
     anim->elapsed = 0.0f;
     anim->frame = 0;
@@ -952,6 +982,32 @@ void SceneGame::onDamageDealt(const battle::EvDamageDealt &event)
         // Random position index for 3D sound effect: 0=left, 1=center, 2=right
         int posIndex = std::rand() % 3;
         this->m_player->onDamaged(posIndex);
+    }
+}
+
+void SceneGame::onEnemySpawned(const battle::EvEnemySpawned &event)
+{
+    // Start enter animation for spawned enemy
+    auto &reg = this->m_battle->getRegistry();
+    auto anim = reg.get_or_emplace<battle::AnimComp>(event.enemy);
+    anim->current_anim = "enter";
+    anim->elapsed = 0.0f;
+    anim->frame = 0;
+    anim->is_playing = true;
+    anim->loop = false;
+}
+
+void SceneGame::onEnemyDied(const battle::EvEnemyDied &event)
+{
+    // Start death animation for killed enemy
+    auto &reg = this->m_battle->getRegistry();
+    if (reg.valid(event.enemy)) {
+        auto anim = reg.get_or_emplace<battle::AnimComp>(event.enemy);
+        anim->current_anim = "die";
+        anim->elapsed = 0.0f;
+        anim->frame = 0;
+        anim->is_playing = true;
+        anim->loop = false;
     }
 }
 

@@ -171,7 +171,8 @@ void BattleSystem::spawnEnemies(int32_t level)
             continue;
         }
 
-        EnemyAI::spawn(m_reg, *info, level, i);
+        entt::entity enemy = EnemyAI::spawn(m_reg, *info, level, i);
+        m_dispatcher.enqueue<EvEnemySpawned>({enemy});
     }
 
     m_ctx.enemies_alive = count;
@@ -329,6 +330,7 @@ void BattleSystem::phaseResolveDeaths()
         to_remove.push_back(e);
 
     for (auto e : to_remove) {
+        m_dispatcher.enqueue<EvEnemyDied>({e});
         m_dispatcher.enqueue<EvEntityDied>({e, false});
         m_reg.destroy(e);
         --m_ctx.enemies_alive;

@@ -79,6 +79,13 @@ struct EvEnemyAttack {
     int32_t damage;
 };
 
+struct EvEnemySpawned {
+    entt::entity enemy;
+};
+
+struct EvEnemyDied {
+    entt::entity enemy;
+};
 
 struct EvLevelComplete {
     int32_t level_completed;

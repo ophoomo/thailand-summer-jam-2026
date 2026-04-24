@@ -38,6 +38,8 @@ class SceneGame : public Scene
     void onEnemyAttack(const battle::EvEnemyAttack &event);
     void onPlayerAttack(const battle::EvPlayerAttack &event);
     void onDamageDealt(const battle::EvDamageDealt &event);
+    void onEnemySpawned(const battle::EvEnemySpawned &event);
+    void onEnemyDied(const battle::EvEnemyDied &event);
 
     void drawEnemies();
     void drawHUD();
