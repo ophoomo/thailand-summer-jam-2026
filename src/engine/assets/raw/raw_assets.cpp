@@ -1,7 +1,7 @@
 
 #include "assets/raw/raw_assets.h"
 #include "assets/stb_vorbis_wrapper.h"
-#include "stb/stb_image.h"
+#include "stb_image.h"
 #include "utils/logger.h"
 #include "utils/resource_path.h"
 #include <fstream>

@@ -19,7 +19,8 @@ class VulkanTextureManager
               VkDescriptorSetLayout textLayout);
 
     // Upload RGBA8 pixels and return an opaque handle (INVALID_TEXTURE on error).
-    [[nodiscard]] TextureHandle upload(const uint8_t *pixels, int width, int height);
+    [[nodiscard]] TextureHandle upload(const uint8_t *pixels, int width, int height,
+                                       bool srgb = true);
     void destroy(TextureHandle handle);
     [[nodiscard]] VkDescriptorSet getDescriptorSet(TextureHandle handle) const;
 

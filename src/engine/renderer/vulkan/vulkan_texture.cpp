@@ -1,6 +1,6 @@
-
 #include "renderer/vulkan/vulkan_texture.h"
 #include "utils/logger.h"
+#include <stdexcept>
 
 // ── Local RAII guards ─────────────────────────────────────────────────────────
 // Used only inside the constructor to ensure temporary Vulkan resources are
@@ -41,7 +41,7 @@ struct CmdPoolGuard
 // Construction / destruction
 // ============================================================
 
-VulkanTexture::VulkanTexture(const UploadContext &ctx, const uint8_t *pixels, int width, int height)
+VulkanTexture::VulkanTexture(const UploadContext &ctx, const uint8_t *pixels, int width, int height, bool srgb)
     : m_device(ctx.device)
 {
     const VkDeviceSize imageSize = static_cast<VkDeviceSize>(width) * height * 4;
@@ -82,7 +82,7 @@ VulkanTexture::VulkanTexture(const UploadContext &ctx, const uint8_t *pixels, in
     {
         VkImageCreateInfo ii{VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO};
         ii.imageType = VK_IMAGE_TYPE_2D;
-        ii.format = VK_FORMAT_R8G8B8A8_UNORM;
+        ii.format = srgb ? VK_FORMAT_R8G8B8A8_SRGB : VK_FORMAT_R8G8B8A8_UNORM;
         ii.extent = {static_cast<uint32_t>(width), static_cast<uint32_t>(height), 1};
         ii.mipLevels = 1;
         ii.arrayLayers = 1;
@@ -165,7 +165,7 @@ VulkanTexture::VulkanTexture(const UploadContext &ctx, const uint8_t *pixels, in
         VkImageViewCreateInfo vi{VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO};
         vi.image = m_image;
         vi.viewType = VK_IMAGE_VIEW_TYPE_2D;
-        vi.format = VK_FORMAT_R8G8B8A8_UNORM;
+        vi.format = srgb ? VK_FORMAT_R8G8B8A8_SRGB : VK_FORMAT_R8G8B8A8_UNORM;
         vi.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         vi.subresourceRange.layerCount = 1;
         vi.subresourceRange.levelCount = 1;

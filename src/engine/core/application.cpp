@@ -1,7 +1,6 @@
 
 #include "core/application.h"
 #include "assets/raw/raw_assets.h"
-#include "audio/audio_interface.h"
 #include "audio/openal/openal_audio.h"
 #include "core/localization.h"
 #include "core/scene_manager.h"
@@ -53,7 +52,8 @@ void Application::init()
 #ifndef NDEBUG
     this->m_assets = std::make_shared<RawAssets>();
 #else
-    this->m_assets = std::make_shared<OxenAssests>();
+    this->m_assets = std::make_shared<RawAssets>();
+    // this->m_assets = std::make_shared<OxenAssests>();
 #endif
     this->m_dispatcher = std::make_shared<entt::dispatcher>();
     this->m_window = std::make_shared<Window>(this->m_width, this->m_height, this->m_windowTitle,
@@ -93,7 +93,7 @@ void Application::mainLoop()
         }
 
 #ifndef NDEBUG
-        this->m_debug_tools->onDraw(this->m_deltaTime);
+        // this->m_debug_tools->onDraw(this->m_deltaTime);
 #endif
         this->m_audio->update(this->m_deltaTime);
         this->m_scenes->onUpdate(this->m_deltaTime);
@@ -106,6 +106,7 @@ void Application::mainLoop()
 void Application::cleanup()
 {
     LOG_CORE_INFO("[Application] Cleanup successful");
+    this->m_audio->unload("click");
 }
 
 void Application::onEvent(const ApplicationEvent &event)
@@ -128,7 +129,8 @@ void Application::loadAudio()
 {
     int channels, sample_rate;
     short *data;
-    int sample = this->m_assets->loadAudio("assets/audio/click.ogg", channels, sample_rate, data);
+    int sample =
+        this->m_assets->loadAudio("assets/audio/click_sfx.ogg", channels, sample_rate, data);
     this->m_audio->load("click", channels, sample, sample_rate, data);
 }
 

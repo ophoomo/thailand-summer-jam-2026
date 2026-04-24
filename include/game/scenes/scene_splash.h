@@ -3,12 +3,23 @@
 
 #include "engine/core/scene.h"
 
+static constexpr float FADE_IN_TIME  = 1.5f;
+static constexpr float HOLD_TIME     = 1.0f;
+static constexpr float FADE_OUT_TIME = 1.5f;
+static constexpr float TOTAL_TIME = FADE_IN_TIME + HOLD_TIME + FADE_OUT_TIME;
+
+static constexpr float LOGO_W = 1280.0f;
+static constexpr float LOGO_H = 720.0f;
+static constexpr float LOGO_X = 0.0f;
+static constexpr float LOGO_Y = 0.0f;
+
 class SceneSplash : public Scene
 {
   public:
     SceneSplash(std::shared_ptr<entt::dispatcher> dispatcher, std::shared_ptr<OxRenderer> renderer,
-                std::shared_ptr<AssetsInterface> assets, std::shared_ptr<AudioInterface> audio)
-        : Scene(dispatcher, renderer, assets, audio)
+                std::shared_ptr<AssetsInterface> assets, std::shared_ptr<AudioInterface> audio,
+                std::shared_ptr<CursorUI> cursor)
+        : Scene(dispatcher, renderer, assets, audio, cursor)
     {
     }
     ~SceneSplash() = default;
@@ -20,6 +31,8 @@ class SceneSplash : public Scene
 
   private:
     double splashTimer = 0;
+    float m_alpha = 0.0f;
+    bool checkExit = false;
 };
 
 #endif /* D09019B3_E41F_43AF_B543_9D8C2E095A48 */

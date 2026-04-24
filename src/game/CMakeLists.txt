@@ -7,12 +7,26 @@ file(GLOB_RECURSE GAME_SOURCES
     ecs/**/*.cpp
     scenes/*.cpp
     config/*.cpp
+    battle/*.cpp
+    cards/*.cpp
+    characters/*.cpp
+    particles/*.cpp
+    gui/*.cpp
 )
 
 # ---------------------------------------------------------------------------
 # Create the executable target
 # ---------------------------------------------------------------------------
 add_executable(${PROJECT_NAME} ${GAME_SOURCES})
+
+# ---------------------------------------------------------------------------
+# Hide terminal window in Release build (Windows only)
+# ---------------------------------------------------------------------------
+if(WIN32)
+    target_link_options(${PROJECT_NAME} PRIVATE
+        $<$<CONFIG:Release,RelWithDebInfo>:/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup>
+    )
+endif()
 
 # ---------------------------------------------------------------------------
 # Configure include directories

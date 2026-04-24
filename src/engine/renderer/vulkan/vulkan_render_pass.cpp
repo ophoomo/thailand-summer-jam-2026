@@ -1,6 +1,7 @@
 
 #include "renderer/vulkan/vulkan_render_pass.h"
 #include "utils/logger.h"
+#include <stdexcept>
 
 // ============================================================
 // Construction / destruction

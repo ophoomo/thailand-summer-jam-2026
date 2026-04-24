@@ -2,7 +2,9 @@
 #include "game/scenes/scene_menu.h"
 #include "core/window.h"
 #include "engine/utils/logger.h"
+#include "game/particles/firefly_particles.h"
 #include "scripting/script_manager.h"
+#include <memory>
 
 // ============================================================
 // Public Methods
@@ -17,6 +19,7 @@ void SceneMenu::onEnter()
 
     this->m_lua = std::make_unique<ScriptManager>();
     this->m_ui = std::make_unique<UISystem>(this->m_lua->State(), m_renderer);
+    this->m_mainmenu_particle = std::make_unique<FireflyParticleEmitter>();
 
     this->m_lua->BindApp(this->m_dispatcher.get());
     this->m_lua->BindScene(this->m_dispatcher.get(), "menu");
@@ -35,7 +38,7 @@ void SceneMenu::onEnter()
     int channels, sample_rate;
     short *data;
     int sample =
-        this->m_assets->loadAudio("assets/audio/menu_audio.ogg", channels, sample_rate, data);
+        this->m_assets->loadAudio("assets/audio/menu_bgm.ogg", channels, sample_rate, data);
     this->m_audio->load("menu", channels, sample, sample_rate, data);
 
     this->m_audio->set_bgm_fade_gain(0);
@@ -45,8 +48,7 @@ void SceneMenu::onEnter()
     int w, h, c;
     auto pixel = this->m_assets->loadImage("assets/images/menu_bg.png", w, h, c);
     this->m_renderer->createTexture("menu_bg", pixel, w, h);
-
-    pixel = this->m_assets->loadImage("assets/images/studio1.png", w, h, c);
+    this->m_assets->unLoadImage(pixel);
 
     this->m_lua->CallVoid("on_enter");
 }
@@ -62,12 +64,15 @@ void SceneMenu::onUpdate(double deltaTime)
     this->m_ui->onUpdate(ms);
 
     this->m_mouse_clicked = false;
+    this->m_mainmenu_particle->update(deltaTime, 1280, 720, true);
 }
 
 void SceneMenu::onDraw()
 {
-    this->m_renderer->oxDrawSprite(0, 0, 1280, 720, "menu_bg", Color::White(), 0);
+    this->m_cursor->onDraw();
+    this->m_renderer->oxDrawSprite(0, 0, 1280, 720, "menu_bg", {255, 255, 255, 255}, 0);
     this->m_ui->onDraw();
+    this->m_mainmenu_particle->draw(this->m_renderer, 1);
 }
 
 void SceneMenu::onExit()
@@ -78,6 +83,7 @@ void SceneMenu::onExit()
     this->m_lua.reset();
     this->m_audio->stop_bgm();
     this->m_renderer->freeTexture("menu_bg");
+    this->m_audio->unload("menu_bg");
 }
 
 // ============================================================

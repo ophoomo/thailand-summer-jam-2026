@@ -1,0 +1,116 @@
+{
+  "menu": {
+    "start": "Start Game",
+    "continue": "Continue",
+    "settings": "Settings",
+    "credits": "Credits",
+    "quit": "Quit"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "lang_en": "English",
+    "lang_th": "Thai",
+    "volume": "Volume",
+    "fullscreen": "Fullscreen",
+    "back": "Back"
+  },
+  "game": {
+    "score": "Score: {}",
+    "level": "Level {}",
+    "lives": "Lives: {}",
+    "paused": "Paused",
+    "resume": "Resume",
+    "restart": "Restart",
+    "game_over": "Game Over",
+    "you_win": "You Win!"
+  },
+  "credits": {
+    "title": "Credits",
+    "developer": "Developer",
+    "music": "Music",
+    "art": "Art",
+    "back": "Back"
+  },
+  "splash": {
+    "loading": "Loading..."
+  },
+  "common": {
+    "yes": "Yes",
+    "no": "No",
+    "ok": "OK",
+    "cancel": "Cancel",
+    "close": "Close"
+  },
+  "story": {
+    "line1": "On the far side of the universe,",
+    "line2": "a hidden temple exists",
+    "line3": "where star deities maintain",
+    "line4": "the balance of the cosmos.",
+
+    "line5": "Two sisters — the goddesses",
+    "line6": "of the sun and the moon —",
+    "line7": "govern day and night,",
+    "line8": "keeping the world in harmony.",
+
+    "line9": "But one day, the sun's power",
+    "line10": "began to overflow,",
+    "line11": "giving rise to a heatwave entity",
+    "line12": "that distorted the balance",
+    "line13": "of the universe.",
+
+    "line14": "The other gods, fearful,",
+    "line15": "retreated,",
+    "line16": "leaving Heliora",
+    "line17": "to face her uncontrollable power alone.",
+
+    "line18": "Amid the chaos, Selenia,",
+    "line19": "the moon goddess",
+    "line20": "who still believes in her sister,",
+    "line21": "sets out on a journey",
+    "line22": "back to the temple.",
+
+    "line23": "She must overcome",
+    "line24": "the blazing heat",
+    "line25": "to reach Heliora",
+    "line26": "before the sun’s power",
+    "line27": "consumes the world entirely.",
+
+    "hint": "Click to continue",
+    "skip": "Skip"
+  },
+  "card": {
+    "moonlight_strike": {
+      "name": "Lunar Beam",
+      "desc": "Deal 6 damage to an enemy."
+    },
+    "shield_bash": {
+      "name": "Full Moon",
+      "desc": "Gain 4 Block. Deal 3 damage."
+    },
+    "lunar_heal": {
+      "name": "Lunar Heal",
+      "desc": "Restore 8 HP."
+    },
+    "shadow_step": {
+      "name": "Shadow Veil",
+      "desc": "Gain 6 Block. Apply 1 Weak to enemy."
+    },
+    "cleave": {
+      "name": "Arcane Explosion",
+      "desc": "Deal 12 damage to an enemy."
+    },
+    "iron_wall": {
+      "name": "Lunar Shield",
+      "desc": "Gain 8 Block."
+    },
+    "war_cry": {
+      "name": "Lunar Empowerment",
+      "desc": "Gain 3 Strength this combat."
+    },
+    "bash": {
+      "name": "Cursed Moonstrike",
+      "desc": "Deal 8 damage. Apply 1 Vulnerable."
+    }
+  }
+}
