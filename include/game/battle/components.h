@@ -214,6 +214,7 @@ struct AnimComp
     std::string current_anim;  // name of currently playing animation
     float elapsed{0.0f};       // time spent in current animation
     int32_t frame{0};          // current frame index
+    int32_t frame_count{4};    // total frames in animation
     bool is_playing{false};    // whether animation is active
     bool loop{false};          // whether animation should loop
 };

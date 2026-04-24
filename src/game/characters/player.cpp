@@ -100,20 +100,22 @@ void Player::onDraw()
 
     // ── Determine animation frame to draw ────────────────────────────────
     int frame = 0;
+    int frame_count = 4;  // default frame count
     std::string anim_name = "idle";
     
     if (auto *anim = reg.try_get<battle::AnimComp>(player)) {
         anim_name = anim->current_anim;
         frame = anim->frame;
+        frame_count = anim->frame_count;  // use from component
     }
 
     // Draw sprite with current animation frame
     float u0_flip, u1_flip, v0, v1;
     if (anim_name == "attack") {
         // Attack animation: row 1 (bottom half)
-        frame = frame % 6;
-        u0_flip = (frame + 1) * 0.25f;
-        u1_flip = frame * 0.25f;
+        frame = frame % frame_count;
+        u0_flip = (frame + 1) * (1.0f / frame_count);
+        u1_flip = frame * (1.0f / frame_count);
         v0 = 0.5f;
         v1 = 1.0f;
     } else {
