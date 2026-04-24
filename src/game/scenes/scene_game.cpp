@@ -557,14 +557,14 @@ void SceneGame::drawEnemies()
                     }
                 } else {
                     // Default idle animation: 4 frames across top row
-                    frame = static_cast<int>(this->m_enemy_anim_time / 0.1f) % 4;
+                    frame = static_cast<int>(this->m_enemy_anim_time / 0.1f) % 6;
                 }
 
                 // Draw sprite with current animation frame
                 float u0_flip, u1_flip, v0, v1;
                 if (anim_name == "attack") {
                     // Attack animation: row 1 (bottom half)
-                    frame = frame % 4;
+                    frame = frame % 6;
                     u0_flip = (frame + 1) * 0.25f;
                     u1_flip = frame * 0.25f;
                     v0 = 0.5f;
@@ -578,7 +578,7 @@ void SceneGame::drawEnemies()
                     v1 = 0.5f;
                 } else {
                     // Idle animation: row 0 (top half)
-                    frame = frame % 4;
+                    frame = frame % 6;
                     u0_flip = (frame + 1) * 0.25f;
                     u1_flip = frame * 0.25f;
                     v0 = 0.0f;
@@ -955,11 +955,11 @@ void SceneGame::onEnemyAttack(const battle::EvEnemyAttack &event)
 {
     auto &reg = this->m_battle->getRegistry();
     auto anim = reg.get_or_emplace<battle::AnimComp>(event.enemy);
-    anim->current_anim = "attack";
-    anim->elapsed = 0.0f;
-    anim->frame = 0;
-    anim->is_playing = true;
-    anim->loop = true;
+    anim.current_anim = "attack";
+    anim.elapsed = 0.0f;
+    anim.frame = 0;
+    anim.is_playing = true;
+    anim.loop = true;
 }
 
 void SceneGame::onPlayerAttack(const battle::EvPlayerAttack &event)
@@ -967,11 +967,11 @@ void SceneGame::onPlayerAttack(const battle::EvPlayerAttack &event)
     entt::entity player = this->m_battle->getPlayer();
     auto &reg = this->m_battle->getRegistry();
     auto anim = reg.get_or_emplace<battle::AnimComp>(player);
-    anim->current_anim = "attack";
-    anim->elapsed = 0.0f;
-    anim->frame = 0;
-    anim->is_playing = true;
-    anim->loop = true;
+    anim.current_anim = "attack";
+    anim.elapsed = 0.0f;
+    anim.frame = 0;
+    anim.is_playing = true;
+    anim.loop = true;
 }
 
 void SceneGame::onDamageDealt(const battle::EvDamageDealt &event)

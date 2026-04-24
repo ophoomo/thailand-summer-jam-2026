@@ -62,10 +62,10 @@ void Player::onEnter()
 
     // Animation
     Animation idle("idle", true);
-    idle.buildFromSheet(6, 2, 0, 0, 4, 0.1f);
+    idle.buildFromSheet(6, 5, 0, 0, 6, 0.1f);
 
     Animation attak("attack", true);
-    attak.buildFromSheet(6, 2, 1, 0, 4, 0.1f);
+    attak.buildFromSheet(6, 5, 1, 0, 22, 0.1f);
 
     this->m_animator->addAnimation(std::move(idle));
     this->m_animator->addAnimation(std::move(attak));
@@ -111,7 +111,7 @@ void Player::onDraw()
     float u0_flip, u1_flip, v0, v1;
     if (anim_name == "attack") {
         // Attack animation: row 1 (bottom half)
-        frame = frame % 4;
+        frame = frame % 6;
         u0_flip = (frame + 1) * 0.25f;
         u1_flip = frame * 0.25f;
         v0 = 0.5f;
