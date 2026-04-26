@@ -108,6 +108,22 @@ void Window::pollEvents()
                 m_event->button.button,
             });
             break;
+        case SDL_EVENT_WINDOW_MINIMIZED:
+            this->m_minimized = true;
+            break;
+
+        case SDL_EVENT_WINDOW_RESTORED:
+        case SDL_EVENT_WINDOW_SHOWN:
+        case SDL_EVENT_WINDOW_MAXIMIZED:
+            this->m_minimized = false;
+            this->m_framebufferResized = true;
+            break;
+
+        case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
+        case SDL_EVENT_WINDOW_RESIZED:
+            if (!this->m_minimized)
+                this->m_framebufferResized = true;
+            break;
         }
     }
 }

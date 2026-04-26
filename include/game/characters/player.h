@@ -8,8 +8,8 @@
 #include "renderer/ox_renderer.h"
 #include <memory>
 
-static constexpr float WIDTH_PLAYER = 104.54f;
-static constexpr float HEIGHT_PLAYER = 151.0f;
+static constexpr float WIDTH_PLAYER = 156.81f;
+static constexpr float HEIGHT_PLAYER = 226.5f;
 
 class Player
 {
@@ -49,7 +49,7 @@ class Player
     std::unique_ptr<Animator> m_animator;
     std::shared_ptr<battle::BattleSystem> m_battle;
 
-    float x = 180, y = 300;
+    float x = 180, y = 250;
 
     float m_health = 10.0;
 };

@@ -88,6 +88,16 @@ class SceneGame : public Scene
     float m_play_time{0.0f};
     int32_t m_level_reached{1};
     std::string m_last_hovered_btn_id;
+
+    // ── Victory cutscene ──────────────────────────────────────────────────────
+    static constexpr float VCUT_FADE_IN  = 1.5f;
+    static constexpr float VCUT_HOLD     = 4.0f;
+    static constexpr float VCUT_FADE_OUT = 1.5f;
+    static constexpr float VCUT_TOTAL    = VCUT_FADE_IN + VCUT_HOLD + VCUT_FADE_OUT;
+
+    bool  m_vcut_active = false;
+    float m_vcut_timer  = 0.0f;
+    float m_vcut_alpha  = 0.0f;
 };
 
 #endif /* B21E8FB9_EE83_4642_9675_594206EBD3B8 */

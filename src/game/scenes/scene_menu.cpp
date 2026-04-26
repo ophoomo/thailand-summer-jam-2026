@@ -50,6 +50,10 @@ void SceneMenu::onEnter()
     this->m_renderer->createTexture("menu_bg", pixel, w, h);
     this->m_assets->unLoadImage(pixel);
 
+    pixel = this->m_assets->loadImage("assets/images/heliola_logo.png", w, h, c);
+    this->m_renderer->createTexture("heliola_logo", pixel, w, h);
+    this->m_assets->unLoadImage(pixel);
+
     this->m_lua->CallVoid("on_enter");
 }
 
@@ -84,6 +88,7 @@ void SceneMenu::onExit()
     this->m_audio->stop_bgm();
     this->m_renderer->freeTexture("menu_bg");
     this->m_audio->unload("menu_bg");
+    this->m_renderer->freeTexture("heliola_logo");
 }
 
 // ============================================================

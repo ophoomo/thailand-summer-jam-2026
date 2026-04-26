@@ -70,9 +70,22 @@ void VulkanRenderer::BeginFrame()
     VkCommandBuffer cmdBuffer = this->v_cmdBuffer[this->m_currentFrame]->get();
     VkFence renderFence = this->v_sync[this->m_currentFrame]->inFlight();
 
-    vkAcquireNextImageKHR(device, this->v_swapChain->get(), UINT64_MAX,
+    m_frameSkipped = false;
+
+    if (this->m_window->isMinimized()) {
+        m_frameSkipped = true;
+        return;
+    }
+
+    VkResult result = vkAcquireNextImageKHR(device, this->v_swapChain->get(), UINT64_MAX,
                           this->v_sync[this->m_currentFrame]->imageAvailable(), VK_NULL_HANDLE,
                           &this->m_imageIndex);
+
+    if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+        this->resize(this->m_window->getWidth(), this->m_window->getHeight());
+        m_frameSkipped = true;
+        return;
+    }
 
     vkWaitForFences(device, 1, &renderFence, VK_TRUE, UINT64_MAX);
     vkResetFences(device, 1, &renderFence);
@@ -125,6 +138,9 @@ void VulkanRenderer::BeginFrame()
 
 void VulkanRenderer::EndFrame()
 {
+    if (m_frameSkipped) {
+        return;
+    }
     if (this->m_batches.empty()) {
         return;
     }
@@ -199,7 +215,11 @@ void VulkanRenderer::EndFrame()
     present.swapchainCount = 1;
     present.pSwapchains = &sc;
     present.pImageIndices = &this->m_imageIndex;
-    vkQueuePresentKHR(this->v_logicalDevice->getQueue(), &present);
+    VkResult presentResult = vkQueuePresentKHR(this->v_logicalDevice->getQueue(), &present);
+
+    if (presentResult == VK_ERROR_OUT_OF_DATE_KHR || presentResult == VK_SUBOPTIMAL_KHR) {
+        this->resize(this->m_window->getWidth(), this->m_window->getHeight());
+    }
 
     this->m_currentFrame = (this->m_currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }

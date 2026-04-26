@@ -96,6 +96,7 @@ class VulkanRenderer : public RendererInterface
     uint32_t m_imageIndex = 0;
     bool m_imguiReady = false;
     float m_msdfUnitRange[2] = {1.0f, 1.0f};
+    bool m_frameSkipped = false;
 };
 
 #endif /* CF051AAF_9029_444D_B999_5B434652B484 */

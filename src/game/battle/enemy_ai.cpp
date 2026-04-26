@@ -29,9 +29,9 @@ entt::entity EnemyAI::spawn(entt::registry &reg, const EnemyInfo &info, int32_t 
     reg.emplace<SpriteComp>(e, SpriteComp{
                                    info.sprite_id, // texture_id
                                    800.0f,         // x (right side of screen)
-                                   300.0f,         // y (center vertically)
-                                   104.54f,        // width (same as player)
-                                   151.0f          // height (same as player)
+                                   250.0f,         // y (center vertically)
+                                   156.81f,        // width (same as player)
+                                   226.5f          // height (same as player)
                                });
 
     if (info.is_boss)

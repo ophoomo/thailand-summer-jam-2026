@@ -60,6 +60,10 @@ void SceneGame::onEnter()
     this->m_renderer->createTexture("boss", pixel, w, h);
     this->m_assets->unLoadImage(pixel);
 
+    pixel = this->m_assets->loadImage("assets/images/victory_cutscene.png", w, h, c);
+    this->m_renderer->createTexture("victory_cutscene", pixel, w, h);
+    this->m_assets->unLoadImage(pixel);
+
     this->m_enemy_animator = std::make_unique<Animator>();
 
     Animation idle("idle", true);
@@ -114,6 +118,10 @@ void SceneGame::onEnter()
     this->m_level_reached = 1;
     this->m_prev_phase = battle::CombatPhase::IDLE;
 
+    this->m_vcut_active = false;
+    this->m_vcut_timer  = 0.0f;
+    this->m_vcut_alpha  = 0.0f;
+
     this->m_battle->startBattle(1);
 }
 
@@ -122,6 +130,26 @@ void SceneGame::onUpdate(double deltaTime)
     const float fdt = static_cast<float>(deltaTime);
     this->m_arrow_pulse += fdt;
     this->m_enemy_anim_time += fdt;
+
+    if (this->m_vcut_active) {
+        this->m_vcut_timer += static_cast<float>(deltaTime);
+        const float t = this->m_vcut_timer;
+
+        if (t < VCUT_FADE_IN) {
+            this->m_vcut_alpha = t / VCUT_FADE_IN;
+        } else if (t < VCUT_FADE_IN + VCUT_HOLD) {
+            this->m_vcut_alpha = 1.0f;
+        } else if (t < VCUT_TOTAL) {
+            this->m_vcut_alpha = 1.0f - (t - VCUT_FADE_IN - VCUT_HOLD) / VCUT_FADE_OUT;
+        } else {
+            this->m_vcut_alpha  = 0.0f;
+            this->m_vcut_active = false;
+            this->m_overlay     = OverlayState::VICTORY;
+        }
+        this->m_mouse_clicked = false;
+        this->m_key_escape    = false;
+        return;
+    }
 
     // ── ESC: toggle pause (only during player turn) ───────────────────────────
     if (this->m_key_escape) {
@@ -318,11 +346,13 @@ void SceneGame::onUpdate(double deltaTime)
                     this->m_audio->stop_bgm();
                 } else if (ctx2.phase == battle::CombatPhase::IDLE &&
                            this->m_prev_phase == battle::CombatPhase::VICTORY) {
-                    // All levels cleared — final boss defeated
                     this->m_level_reached = ctx2.turn_number;
-                    this->m_overlay = OverlayState::VICTORY;
                     this->m_audio->play_sfx("victory");
                     this->m_audio->stop_bgm();
+
+                    this->m_vcut_active = true;
+                    this->m_vcut_timer  = 0.0f;
+                    this->m_vcut_alpha  = 0.0f;
                 }
             }
             this->m_prev_phase = ctx2.phase;
@@ -365,6 +395,11 @@ void SceneGame::onDraw()
     this->m_bottom_particle->draw(this->m_renderer, 3);
     this->m_header_particle->draw(this->m_renderer, 3);
     this->drawOverlay();
+
+    if (this->m_vcut_active) {
+        const Color tint = Color::Lerp(Color::Transparent(), Color::White(), this->m_vcut_alpha);
+        this->m_renderer->oxDrawSprite(0, 0, 1280, 720, "victory_cutscene", tint, 50);
+    }
 }
 
 void SceneGame::onExit()
@@ -374,12 +409,13 @@ void SceneGame::onExit()
     this->m_dispatcher->sink<WindowKeyEvent>().disconnect(this);
     this->m_audio->stop_bgm();
     this->m_renderer->freeTexture("gameplay_bg");
-    this->m_renderer->freeTexture("botoom_bar");
+    this->m_renderer->freeTexture("bottom_bar");
     this->m_renderer->freeTexture("button");
 
     this->m_renderer->freeTexture("enemy1");
     this->m_renderer->freeTexture("enemy2");
     this->m_renderer->freeTexture("boss");
+    this->m_renderer->freeTexture("victory_cutscene");
 
     this->m_audio->unload("gameplay_bg");
     this->m_audio->unload("no_mana");

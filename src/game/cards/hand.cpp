@@ -28,7 +28,14 @@ CardHand::~CardHand()
     this->m_renderer->freeTexture("card_defend");
     this->m_renderer->freeTexture("card_attack");
     this->m_renderer->freeTexture("card_skill");
-    this->m_renderer->freeTexture("skill_inner");
+    this->m_renderer->freeTexture("shadow_veil");
+    this->m_renderer->freeTexture("arcane_explosion");
+    this->m_renderer->freeTexture("cursed_moonstrike");
+    this->m_renderer->freeTexture("full_moon");
+    this->m_renderer->freeTexture("lunar_beam");
+    this->m_renderer->freeTexture("lunar_empowerment");
+    this->m_renderer->freeTexture("lunar_heal");
+    this->m_renderer->freeTexture("lunar_shield");
     this->m_audio->unload("card_slide_sfx_1");
     this->m_audio->unload("card_remove_sfx_1");
 }
@@ -53,8 +60,36 @@ void CardHand::onEnter()
     this->m_renderer->createTexture("card_skill", pixel, w, h);
     this->m_assets->unLoadImage(pixel);
 
-    pixel = this->m_assets->loadImage("assets/images/card/skill_inner.png", w, h, c);
-    this->m_renderer->createTexture("skill_inner", pixel, w, h);
+    pixel = this->m_assets->loadImage("assets/images/card/shadow_veil.png", w, h, c);
+    this->m_renderer->createTexture("shadow_veil", pixel, w, h);
+    this->m_assets->unLoadImage(pixel);
+
+    pixel = this->m_assets->loadImage("assets/images/card/arcane_explosion.png", w, h, c);
+    this->m_renderer->createTexture("arcane_explosion", pixel, w, h);
+    this->m_assets->unLoadImage(pixel);
+
+    pixel = this->m_assets->loadImage("assets/images/card/cursed_moonstrike.png", w, h, c);
+    this->m_renderer->createTexture("cursed_moonstrike", pixel, w, h);
+    this->m_assets->unLoadImage(pixel);
+
+    pixel = this->m_assets->loadImage("assets/images/card/full_moon.png", w, h, c);
+    this->m_renderer->createTexture("full_moon", pixel, w, h);
+    this->m_assets->unLoadImage(pixel);
+
+    pixel = this->m_assets->loadImage("assets/images/card/lunar_beam.png", w, h, c);
+    this->m_renderer->createTexture("lunar_beam", pixel, w, h);
+    this->m_assets->unLoadImage(pixel);
+
+    pixel = this->m_assets->loadImage("assets/images/card/lunar_empowerment.png", w, h, c);
+    this->m_renderer->createTexture("lunar_empowerment", pixel, w, h);
+    this->m_assets->unLoadImage(pixel);
+
+    pixel = this->m_assets->loadImage("assets/images/card/lunar_heal.png", w, h, c);
+    this->m_renderer->createTexture("lunar_heal", pixel, w, h);
+    this->m_assets->unLoadImage(pixel);
+
+    pixel = this->m_assets->loadImage("assets/images/card/lunar_shield.png", w, h, c);
+    this->m_renderer->createTexture("lunar_shield", pixel, w, h);
     this->m_assets->unLoadImage(pixel);
 
     // Load Image

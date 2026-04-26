@@ -16,6 +16,8 @@ set(ALSOFT_UTILS      OFF CACHE BOOL "" FORCE)
 set(ALSOFT_EXAMPLES   OFF CACHE BOOL "" FORCE)
 set(ALSOFT_TESTS      OFF CACHE BOOL "" FORCE)
 set(ALSOFT_INSTALL    OFF CACHE BOOL "" FORCE)
+set(SDL_SHARED OFF CACHE BOOL "" FORCE)
+set(SDL_STATIC ON  CACHE BOOL "" FORCE)
 
 # ---------------------------------------------------------------------------
 # Find libraries

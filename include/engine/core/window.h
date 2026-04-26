@@ -33,6 +33,7 @@ class Window
     Uint64 getPerformanceFrequency();
     Uint64 getPerformanceCounter();
     std::vector<const char *> GetInstanceExtensions();
+    bool isMinimized() const { return this->m_minimized; }
 
     SDL_Window *get() const
     {
@@ -78,6 +79,8 @@ class Window
     int m_height;
     bool m_framebufferResized{false};
     int m_flags = SDL_INIT_VIDEO | SDL_INIT_EVENTS;
+    bool m_minimized{false};
+
 };
 
 #endif /* EDBCA38A_F47C_42A9_AA0B_C91ABC745EE2 */

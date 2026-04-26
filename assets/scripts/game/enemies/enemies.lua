@@ -124,7 +124,7 @@ return {
 
     {
         id           = "boss_dragon",
-        name         = "Dragon",
+        name         = "Heliora",
         type         = "boss_dragon",
         sprite_id    = "boss",
         base_hp      = 180,
