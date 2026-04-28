@@ -191,11 +191,14 @@ void BattleSystem::buildStarterDeck(DeckComp &deck) const
             LOG_WARN("[BattleSystem] buildStarterDeck: card id {} not in db", id);
     };
 
-    push(0, 4); // 4× Moonlight Strike
-    push(1, 3); // 3× Shield Bash
-    push(5, 2); // 2× Iron Wall
+    push(0, 3); // 3× Moonlight Strike
+    push(1, 2); // 2× Shield Bash
     push(2);    // 1× Lunar Heal
+    push(3);    // 1× Shadow Veil
+    push(4);    // 1× Arcane Explosion
+    push(5, 2); // 2× Iron Wall
     push(6);    // 1× War Cry
+    push(7);    // 1× Cursed Moonstrike
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
