@@ -282,9 +282,17 @@ void SceneGame::onUpdate(double deltaTime)
     }
 
     // ── CardHand update (hover, selection, right-click discard) ───────────────
+    // Block all card interactions outside of PLAYER_TURN to prevent stale
+    // discard slots from triggering on the next turn's freshly drawn card.
+    bool is_player_turn = this->m_battle &&
+        this->m_battle->getContext().phase == battle::CombatPhase::PLAYER_TURN;
     this->m_player->onUpdate(deltaTime);
-    this->m_card_hand->onUpdate(deltaTime, this->m_mouse_x, this->m_mouse_y, this->m_mouse_clicked,
-                                this->m_right_clicked);
+    this->m_card_hand->onUpdate(deltaTime, this->m_mouse_x, this->m_mouse_y,
+                                is_player_turn ? this->m_mouse_clicked : false,
+                                is_player_turn ? this->m_right_clicked : false);
+    // Drain any discard slot that may have been queued before the phase check.
+    if (!is_player_turn)
+        this->m_card_hand->consumeDiscardedSlot();
     this->m_timer_gui->onUpdate(deltaTime);
     this->m_lunar_cycle_gui->onUpdate(deltaTime);
 
