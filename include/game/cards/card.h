@@ -78,12 +78,19 @@ class Card
 
     // Show this card (fly-in animation) with the given info
     void showCard(const CardInfo& info, float from_y = 1100.0f);
+    // Show this card in-place with no fly-in (for slots shifted by hand compaction)
+    void showCardInPlace(const CardInfo& info);
     // Trigger the discard animation (hides card)
     void hideCard();
     bool isDiscarding() const { return m_state == CardState::DISCARDING; }
+    // Hide immediately with no animation (for slots shifted out by hand compaction)
+    void silentHide();
 
     float getCenterX() const { return x + width * 0.5f; }
     float getCenterY() const { return y + height * 0.5f; }
+    float getX() const { return x; }
+    float getY() const { return y; }
+    void snapPosition(float px, float py) { x = px; y = py; }
 
   private:
     void updateAnimations(double dt);

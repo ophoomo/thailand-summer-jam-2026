@@ -185,6 +185,36 @@ void Card::startFlyIn(float from_y)
     drawFrom(base_x, from_y);
 }
 
+void Card::showCardInPlace(const CardInfo &info)
+{
+    m_particles.clear();
+    m_burst_fired = false;
+    m_info = info;
+    m_info.show = true;
+    m_state = CardState::IDLE;
+    m_opacity = 255;
+    m_scale = 1.0f;
+    m_rotation = 0.0f;
+    is_hovered = false;
+    is_selected = false;
+    m_prev_selected = false;
+    m_y_offset = 0.0f;
+    m_glow_intensity = 0.0f;
+    m_glow_alpha = 0.0f;
+}
+
+void Card::silentHide()
+{
+    m_info.show = false;
+    m_state = CardState::IDLE;
+    m_rotation = 0.0f;
+    m_opacity = 255;
+    m_scale = 1.0f;
+    m_particles.clear();
+    is_selected = false;
+    m_prev_selected = false;
+}
+
 void Card::discard()
 {
     if (this->m_state == CardState::DISCARDING)

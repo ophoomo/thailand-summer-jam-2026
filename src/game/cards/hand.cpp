@@ -146,20 +146,56 @@ void CardHand::onUpdate(double dt, float mouse_x, float mouse_y, bool mouse_clic
 
 void CardHand::syncWithBattle(const battle::HandComp &hand)
 {
+    // Freeze all slot updates while any discard animation is playing.
+    // Without this, hand compaction immediately reassigns the adjacent slot to
+    // the next card, causing it to jump to y=1100 and fly in — which looks like
+    // the identical adjacent card was also discarded.
+    for (int i = 0; i < static_cast<int>(MAX_CARD_SLOTS); i++) {
+        if (m_cards[i]->isDiscarding())
+            return;
+    }
+
+    int32_t prev_synced_ids[MAX_CARD_SLOTS];
+    for (int i = 0; i < static_cast<int>(MAX_CARD_SLOTS); i++) {
+        prev_synced_ids[i] = m_synced_ids[i];
+    }
+
     for (int i = 0; i < static_cast<int>(MAX_CARD_SLOTS); i++) {
         int32_t new_id = (i < hand.count) ? hand.slots[static_cast<size_t>(i)] : -1;
-        if (new_id == m_synced_ids[i])
+
+        bool slot_correct = (new_id == m_synced_ids[i]) &&
+                            (new_id >= 0 ? m_cards[i]->isVisible() : !m_cards[i]->isVisible());
+        if (slot_correct)
             continue;
+
+        int32_t old_id = m_synced_ids[i];
         m_synced_ids[i] = new_id;
+        m_cards[i]->setSelected(false);
+
         if (new_id >= 0) {
             const CardInfo *info = m_db.findByIndex(new_id);
             if (info) {
-                m_cards[i]->setSelected(false);
-                m_cards[i]->showCard(*info);
+                if (old_id == -1) {
+                    m_cards[i]->showCard(*info);
+                } else {
+                    int source_slot = -1;
+                    for (int j = 0; j < static_cast<int>(MAX_CARD_SLOTS); j++) {
+                        if (j == i)
+                            continue;
+                        if (prev_synced_ids[j] == new_id) {
+                            source_slot = j;
+                            break;
+                        }
+                    }
+                    if (source_slot >= 0 && m_cards[source_slot]->isVisible()) {
+                        m_cards[i]->snapPosition(m_cards[source_slot]->getX(),
+                                                 m_cards[source_slot]->getY());
+                    }
+                    m_cards[i]->showCardInPlace(*info);
+                }
             }
         } else {
-            m_cards[i]->setSelected(false);
-            m_cards[i]->hideCard();
+            m_cards[i]->silentHide();
         }
     }
 }
@@ -202,9 +238,12 @@ int CardHand::consumeDiscardedSlot()
 void CardHand::calculatePositionCardInHand()
 {
     int n = 0;
+    bool any_discarding = false;
     for (int i = 0; i < MAX_CARD_SLOTS; i++) {
         if (this->m_cards[i]->isInHand())
             n++;
+        if (this->m_cards[i]->isDiscarding())
+            any_discarding = true;
     }
 
     if (n == 0)
@@ -260,11 +299,15 @@ void CardHand::calculatePositionCardInHand()
             }
         }
 
-        bool right_hit = m_right_clicked && this->m_cards[i]->checkHover(m_mouse_x, m_mouse_y);
+        bool right_hit = !any_discarding && m_right_clicked &&
+                         this->m_cards[i]->checkHover(m_mouse_x, m_mouse_y);
         if (right_hit) {
             m_last_discarded_slot = i;
             this->m_cards[i]->discard();
             this->m_audio->play_sfx_3d("card_remove_sfx_1", soundX, 0.0f, -3.0f, 0.65);
+            // Consume the right-click so adjacent cards with overlapping hit areas
+            // (due to hover scale) cannot also discard in the same frame.
+            m_right_clicked = false;
         }
     }
 }
