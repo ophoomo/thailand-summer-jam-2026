@@ -1,13 +1,20 @@
-# Thailand Summer Jam 2026 - Custom Game Engine
+<p align="center">
+  <img src="preview/header.png" alt="Heliora" width="100%" />
+</p>
 
-A custom-built 2D game engine developed from scratch for **Thailand Summer Jam 2026**.
+# Heliora — Thailand Summer Jam 2026
 
-This project is created as a learning exercise to explore the fundamentals of building a game engine, including core systems such as:
+A custom-built 2D game developed from scratch for **Thailand Summer Jam 2026**, powered entirely by a custom game engine built for this jam.
 
-- Rendering system
-- Input handling
-- Game loop architecture
-- Basic engine structure
+🎮 **Play it now:** [Heliora on itch.io](https://thepillowy.itch.io/heliora)
+
+▶️ **Gameplay trailer:** [Watch on YouTube](https://youtu.be/WoQvntFnWaE?si=6u2wmpXezvTS0qrv)
+
+## 🎮 How to Play
+
+<p align="center">
+  <img src="preview/guide.png" alt="How to play guide" width="100%" />
+</p>
 
 ## 🛠️ Tech Stack
 
@@ -40,7 +47,7 @@ cmake -S . -B build
 cmake --build build
 ```
 
-### 2. RUN
+### 3. RUN
 After building, you can run the executable:
 
 GCC / Clang (Linux / macOS)
